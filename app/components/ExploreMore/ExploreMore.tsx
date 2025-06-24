@@ -1,10 +1,10 @@
 import { IconCard } from '../IconCard/IconCard';
 
 const EXPLORE = [
-  { href: '#locations', src: '/locations.svg', label: 'Locations' },
-  { href: '#tattoos', src: '/tattoo.svg', label: 'Tattoos' },
-  { href: '#hierarchy', src: '/hierarchy.svg', label: 'Hierarchy' },
-  { href: '#music', src: '/music.svg', label: 'Music' },
+  { href: '/locations', src: '/locations.svg', label: 'Locations' },
+  { href: '/tattoos', src: '/tattoo.svg', label: 'Tattoos' },
+  { href: '/hierarchy', src: '/hierarchy.svg', label: 'Hierarchy' },
+  { href: '/music', src: '/music.svg', label: 'Music' },
 ];
 export const ExploreMore = () => (
   <section className="container mx-auto px-6 pb-16">

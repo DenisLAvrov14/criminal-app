@@ -42,3 +42,9 @@ next-env.d.ts
 .prettierignore
 .prettierrc.json
 
+# игнорировать большой инсталлятор
+/public/CursorUserSetup-x64-1.1.3.exe
+
+# если нужно игнорировать все exe в /public
+/public/*.exe
+
