@@ -59,26 +59,6 @@ export default async function ArticlePage({ params }: Params) {
         </a>
       </nav>
 
-      {/* Заголовок и дата */}
-      <h1 className="text-4xl font-bold mb-2">{article.title}</h1>
-      {article.publishedAt && (
-        <p className="text-sm text-gray-400 mb-6">
-          {new Date(article.publishedAt).toLocaleDateString()} • by {article.author || 'Unknown'}
-        </p>
-      )}
-
-      {/* SEO-поля (если нужны где-то в тексте) */}
-      {article.meta_title && (
-        <p className="text-xs text-gray-500 mb-4">
-          <strong>Meta title:</strong> {article.meta_title}
-        </p>
-      )}
-      {article.meta_description && (
-        <p className="text-xs text-gray-500 mb-8">
-          <strong>Meta description:</strong> {article.meta_description}
-        </p>
-      )}
-
       {/* Картинки статьи */}
       {article.images.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">

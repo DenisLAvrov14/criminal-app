@@ -1,3 +1,5 @@
+// File: app/lib/api.ts
+
 import { Article, DirectusArticle, DirectusFile, DirectusResponse, File } from './types';
 
 const DIRECTUS_URL = process.env.DIRECTUS_URL!;
@@ -6,7 +8,7 @@ const DIRECTUS_TOKEN = process.env.DIRECTUS_TOKEN!;
 /**
  * Поля, которые будем запрашивать у Directus.
  * Разворачиваем images и cover через junction-ключи.
- * Убраны поля published_date и author, их нет в коллекции.
+ * Добавлены поля из Directus для базовых статей.
  */
 const ARTICLE_FIELDS = [
   'id',
@@ -21,6 +23,14 @@ const ARTICLE_FIELDS = [
   'images.directus_files_id.*',
   // single-file cover: сразу все поля файла
   'cover.*',
+  // дополнительные поля
+  'fio',
+  'nickname',
+  'birthdate',
+  'birthplace',
+  'residence',
+  'nationality',
+  'status',
 ].join(',');
 
 // Заголовки с индексной сигнатурой для корректной типизации
@@ -102,6 +112,15 @@ function transformArticle(item: DirectusArticle): Article {
     section: item.section,
     images,
     cover,
+
+    // дополнительные поля
+    fio: item.fio ?? undefined,
+    nickname: item.nickname ?? undefined,
+    birthdate: item.birthdate ?? undefined,
+    birthplace: item.birthplace ?? undefined,
+    residence: item.residence ?? undefined,
+    nationality: item.nationality ?? undefined,
+    status: item.status ?? undefined,
   };
 }
 

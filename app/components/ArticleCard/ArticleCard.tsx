@@ -1,21 +1,25 @@
+// File: app/components/ArticleCard/ArticleCard.tsx
+
 import React from 'react';
 import Link from 'next/link';
 
 export interface ArticleCardProps {
-  img: string;
+  /** Первый элемент из массива images (может быть undefined) */
+  img?: string;
+  /** Поле cover из Directus (может быть undefined) */
+  cover?: string;
   alt: string;
   title: string;
   desc: string;
   href?: string;
-  cover?: string;
 }
 
-export const ArticleCard: React.FC<ArticleCardProps> = ({ img, alt, title, desc, href, cover }) => {
-  // Берём обложку, если она есть, иначе — основное изображение
-  const src = cover ?? img;
+export const ArticleCard: React.FC<ArticleCardProps> = ({ img, cover, alt, title, desc, href }) => {
+  // Приоритет: cover > img > локальный плейсхолдер
+  const src = cover && cover.length ? cover : img && img.length ? img : '/images/placeholder.jpg';
 
-  // Лог для проверки пропсов и src
-  console.log('ArticleCard props:', { img, cover, src, alt, title });
+  // Для дебага можно раскомментировать
+  // console.log('ArticleCard props:', { img, cover, src, alt, title })
 
   const content = (
     <article className="bg-[#2a1910] rounded-lg overflow-hidden hover:shadow-lg transition">

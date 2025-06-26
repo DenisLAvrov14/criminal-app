@@ -13,11 +13,7 @@ export default function ArticlesLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-black text-[#f5e8c7] font-serif">
       <Header />
-      <main className="container mx-auto px-6 py-16">
-        <h1 className="text-4xl font-bold uppercase mb-12">All Articles</h1>
-
-        {children}
-      </main>
+      <main className="container mx-auto px-6 py-16">{children}</main>
       <Footer />
     </div>
   );

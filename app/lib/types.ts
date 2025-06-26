@@ -1,4 +1,4 @@
-// lib/types.ts
+// File: lib/types.ts
 
 /**
  * Это то, что возвращает Directus, когда вы запрашиваете *.directus_files_id.*
@@ -32,15 +32,27 @@ export interface DirectusArticle {
   title: string;
   excerpt?: string;
   content: string;
-  published_date: string;
+  published_date?: string;
   meta_title?: string;
   meta_description?: string;
   section?: string;
   author?: string;
-  // M2M-массив
+
+  // M2M-массив изображений
   images?: FileWrapper[];
-  // Одиночный файл
+  // Одиночный файл cover
   cover?: FileWrapper;
+
+  // Дополнительные поля для раздела "legends"
+  fio?: string;
+  nickname?: string;
+  birthdate?: string;
+  birthplace?: string;
+  residence?: string;
+  nationality?: string;
+  status?: string;
+  crowned_date?: string;
+  crowned_place?: string;
 }
 
 /**
@@ -69,13 +81,24 @@ export interface Article {
   meta_description?: string;
   section?: string;
   author?: string;
+
   images: File[];
   cover: File | null;
+
+  // Опциональные поля для раздела "legends"
+  fio?: string;
+  nickname?: string;
+  birthdate?: string;
+  birthplace?: string;
+  residence?: string;
+  nationality?: string;
+  status?: string;
+  crowned_date?: string;
+  crowned_place?: string;
 }
 
-/**
- * Универсальный ответ Directus для списков
- */
-export interface DirectusResponse<T> {
+// Тип-обёртка для ответа Directus
+export type DirectusResponse<T> = {
   data: T[];
-}
+  // Можно добавить другие поля, если нужны (например, meta)
+};
