@@ -1,16 +1,20 @@
-// File: app/components/MusicArticle/MusicArticle.tsx
 'use client';
 
 import React from 'react';
-import { File } from '@/app/lib/types';
 
 export interface MusicArticleProps {
   title: string;
+  excerpt?: string;
   contentHtml: string;
-  cover?: File | null;
+  /** YouTube link or embed URL */
+  videoUrl?: string;
+  /** URL of the cover image */
+  coverUrl?: string;
   fio?: string;
   nickname?: string;
   birthdate?: string;
+  /** Optional: date of death */
+  deathdate?: string;
   birthplace?: string;
   residence?: string;
   nationality?: string;
@@ -19,78 +23,114 @@ export interface MusicArticleProps {
 
 export default function MusicArticle({
   title,
+  excerpt,
   contentHtml,
-  cover,
+  videoUrl,
+  coverUrl,
   fio,
   nickname,
   birthdate,
+  deathdate,
   birthplace,
   residence,
   nationality,
   status,
 }: MusicArticleProps) {
+  // Преобразуем любую YouTube-ссылку в embed-формат
+  const getEmbedUrl = (url?: string): string | undefined => {
+    if (!url) return undefined;
+    const idMatch = url.match(/(?:v=|youtu\.be\/)([\w-]+)/);
+    const id = idMatch?.[1];
+    return id ? `https://www.youtube.com/embed/${id}` : undefined;
+  };
+
+  const embedUrl = getEmbedUrl(videoUrl);
+
   return (
     <article className="container mx-auto py-12 space-y-12">
-      {/* Фото + метаданные */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {cover && (
-          <img src={cover.url} alt={title} className="w-full h-auto rounded-lg shadow-lg" />
-        )}
-        <div className="md:col-span-2 text-[#ddd] space-y-4">
-          <dl className="grid grid-cols-2 gap-x-6 gap-y-2">
+        <div className="md:col-span-2 space-y-8">
+          {embedUrl ? (
+            <>
+              <div className="relative" style={{ paddingTop: '56.25%' }}>
+                <iframe
+                  className="absolute top-0 left-0 w-full h-full"
+                  src={embedUrl}
+                  title={title}
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+              {excerpt && (
+                <div className="prose prose-lg prose-invert max-w-none mt-6">
+                  <p>{excerpt}</p>
+                </div>
+              )}
+            </>
+          ) : (
+            <div
+              className="prose prose-lg prose-invert max-w-none"
+              dangerouslySetInnerHTML={{ __html: contentHtml }}
+            />
+          )}
+        </div>
+
+        <div className="space-y-6 text-[#ddd] flex flex-col items-center md:items-end md:text-right">
+          {coverUrl && (
+            <img src={coverUrl} alt={title} className="w-1/2 h-auto rounded-lg shadow-lg mb-4" />
+          )}
+          <dl className="grid grid-cols-1 gap-y-2">
             {fio && (
-              <>
-                <dt className="font-semibold">ФИО:</dt>
+              <div>
+                <dt className="font-semibold">Full Name:</dt>
                 <dd>{fio}</dd>
-              </>
+              </div>
             )}
             {nickname && (
-              <>
-                <dt className="font-semibold">Псевдоним:</dt>
+              <div>
+                <dt className="font-semibold">Nickname:</dt>
                 <dd>{nickname}</dd>
-              </>
+              </div>
             )}
             {birthdate && (
-              <>
-                <dt className="font-semibold">Дата рождения:</dt>
+              <div>
+                <dt className="font-semibold">Date of Birth:</dt>
                 <dd>{new Date(birthdate).toLocaleDateString()}</dd>
-              </>
+              </div>
+            )}
+            {deathdate && (
+              <div>
+                <dt className="font-semibold">Date of Death:</dt>
+                <dd>{new Date(deathdate).toLocaleDateString()}</dd>
+              </div>
             )}
             {birthplace && (
-              <>
-                <dt className="font-semibold">Место рождения:</dt>
+              <div>
+                <dt className="font-semibold">Place of Birth:</dt>
                 <dd>{birthplace}</dd>
-              </>
+              </div>
             )}
             {residence && (
-              <>
-                <dt className="font-semibold">Проживал:</dt>
+              <div>
+                <dt className="font-semibold">Residence:</dt>
                 <dd>{residence}</dd>
-              </>
+              </div>
             )}
             {nationality && (
-              <>
-                <dt className="font-semibold">Национальность:</dt>
+              <div>
+                <dt className="font-semibold">Nationality:</dt>
                 <dd>{nationality}</dd>
-              </>
+              </div>
             )}
             {status && (
-              <>
-                <dt className="font-semibold">Статус:</dt>
+              <div>
+                <dt className="font-semibold">Status:</dt>
                 <dd>{status}</dd>
-              </>
+              </div>
             )}
           </dl>
         </div>
-      </div>
-
-      {/* Контент статьи */}
-      <div className="prose prose-lg prose-invert max-w-none">
-        <h1 className="text-3xl font-bold mb-4">{title}</h1>
-        {/* Обратите внимание: 
-            1) обязательный вложенный объект { __html: ... } 
-            2) НЕ самозакрывающийся <div /> */}
-        <div className="mt-6" dangerouslySetInnerHTML={{ __html: contentHtml }}></div>
       </div>
     </article>
   );

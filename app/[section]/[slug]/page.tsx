@@ -43,7 +43,22 @@ export default async function SectionDetailPage({
 
   if (section === 'legends') {
     return (
-      <LegendArticle title={data.title} content={data.content} publishedAt={data.published_at} />
+      <LegendArticle
+        title={data.title}
+        content={data.content}
+        cover={{
+          url: '',
+        }}
+        fio={''}
+        nickname={''}
+        birthdate={''}
+        birthplace={''}
+        residence={''}
+        nationality={''}
+        status={''}
+        crowned_date={''}
+        crowned_place={''}
+      />
     );
   }
 
