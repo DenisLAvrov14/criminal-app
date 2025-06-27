@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 
 export interface MusicArticleProps {
   title: string;
@@ -49,6 +50,7 @@ export default function MusicArticle({
   return (
     <article className="container mx-auto py-12 space-y-12">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* LEFT: видео или HTML */}
         <div className="md:col-span-2 space-y-8">
           {embedUrl ? (
             <>
@@ -76,9 +78,17 @@ export default function MusicArticle({
           )}
         </div>
 
+        {/* RIGHT: изображение и информация */}
         <div className="space-y-6 text-[#ddd] flex flex-col items-center md:items-end md:text-right">
           {coverUrl && (
-            <img src={coverUrl} alt={title} className="w-1/2 h-auto rounded-lg shadow-lg mb-4" />
+            <Image
+              src={coverUrl}
+              alt={title}
+              width={200} // уменьшенный размер
+              height={200}
+              className="rounded-lg shadow-lg mb-4"
+              priority
+            />
           )}
           <dl className="grid grid-cols-1 gap-y-2">
             {fio && (
