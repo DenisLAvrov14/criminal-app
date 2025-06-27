@@ -1,71 +1,140 @@
-// File: app/components/LegendArticle/LegendArticle.tsx
+'use client';
+
 import React from 'react';
+import Image from 'next/image';
+import DOMPurify from 'isomorphic-dompurify';
+import { article } from 'framer-motion/client';
 
 export interface LegendArticleProps {
   title: string;
-  content: string;
-  cover: { url: string };
-  fio: string;
-  nickname: string;
-  birthdate: string;
-  birthplace: string;
-  residence: string;
-  nationality: string;
-  status: string;
-  crowned_date: string;
-  crowned_place: string;
-  // если дальше понадобятся — раскомментируйте
-  // crowned_by: string[]
-  // godparents: { type: string; name: string; year?: string }[]
+  excerpt?: string;
+  contentHtml: string;
+  imageUrls: string[];
+  fio?: string;
+  nickname?: string;
+  birthdate?: string;
+  deathdate?: string;
+  birthplace?: string;
+  residence?: string;
+  nationality?: string;
+  status?: string;
 }
 
 export default function LegendArticle({
   title,
-  content,
-  cover,
+  excerpt,
+  contentHtml,
+  imageUrls,
   fio,
   nickname,
   birthdate,
+  deathdate,
   birthplace,
   residence,
   nationality,
   status,
-  crowned_date,
-  crowned_place,
 }: LegendArticleProps) {
+  // Преобразуем безопасный HTML
+  const safeHtml = DOMPurify.sanitize(contentHtml);
+  // Основная обложка
+  const coverUrl = imageUrls[0];
+
   return (
-    <article className="container mx-auto py-12 space-y-12">
+    <article className="container mx-auto py-12 space-y-8">
+      <h1 className="text-3xl font-bold mb-6">{title}</h1>
+
+      {/* Grid: cover left, info right */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div>
-          <img src={cover.url} alt={title} className="w-full h-auto rounded-lg shadow-lg" />
+        <div className="md:col-span-2">
+          {coverUrl && (
+            <div className="relative w-full h-96">
+              <Image
+                src={coverUrl}
+                alt={title}
+                fill
+                className="object-cover rounded-lg shadow-lg"
+                priority
+              />
+            </div>
+          )}
         </div>
-        <div className="md:col-span-2 space-y-4 text-[#ddd]">
-          <dl className="grid grid-cols-2 gap-x-6 gap-y-2">
-            <dt className="font-semibold">ФИО:</dt>
-            <dd>{fio}</dd>
-            <dt className="font-semibold">Воровское имя:</dt>
-            <dd>{nickname}</dd>
-            <dt className="font-semibold">Дата рождения:</dt>
-            <dd>{new Date(birthdate).toLocaleDateString()}</dd>
-            <dt className="font-semibold">Место рождения:</dt>
-            <dd>{birthplace}</dd>
-            <dt className="font-semibold">Проживал:</dt>
-            <dd>{residence}</dd>
-            <dt className="font-semibold">Национальность:</dt>
-            <dd>{nationality}</dd>
-            <dt className="font-semibold">Статус:</dt>
-            <dd>{status}</dd>
-            <dt className="font-semibold">Короновал:</dt>
-            <dd>
-              {new Date(crowned_date).toLocaleDateString()} ({crowned_place})
-            </dd>
+
+        <div className="space-y-6 text-[#ddd] flex flex-col items-center md:items-end md:text-right">
+          {coverUrl && (
+            <Image
+              src={coverUrl}
+              alt={title}
+              width={200}
+              height={200}
+              className="rounded-lg shadow-lg mb-4"
+              priority
+            />
+          )}
+          <dl className="grid grid-cols-1 gap-y-2">
+            {fio && (
+              <div>
+                <dt className="font-semibold">Full Name:</dt>
+                <dd>{fio}</dd>
+              </div>
+            )}
+            {nickname && (
+              <div>
+                <dt className="font-semibold">Nickname:</dt>
+                <dd>{nickname}</dd>
+              </div>
+            )}
+            {birthdate && (
+              <div>
+                <dt className="font-semibold">Date of Birth:</dt>
+                <dd>{new Date(birthdate).toLocaleDateString()}</dd>
+              </div>
+            )}
+            {deathdate && (
+              <div>
+                <dt className="font-semibold">Date of Death:</dt>
+                <dd>{new Date(deathdate).toLocaleDateString()}</dd>
+              </div>
+            )}
+            {birthplace && (
+              <div>
+                <dt className="font-semibold">Place of Birth:</dt>
+                <dd>{birthplace}</dd>
+              </div>
+            )}
+            {residence && (
+              <div>
+                <dt className="font-semibold">Residence:</dt>
+                <dd>{residence}</dd>
+              </div>
+            )}
+            {nationality && (
+              <div>
+                <dt className="font-semibold">Nationality:</dt>
+                <dd>{nationality}</dd>
+              </div>
+            )}
+            {status && (
+              <div>
+                <dt className="font-semibold">Status:</dt>
+                <dd>{status}</dd>
+              </div>
+            )}
           </dl>
         </div>
       </div>
-      <div className="prose prose-lg prose-invert max-w-none">
-        <h1 className="text-3xl font-bold mb-4">{title}</h1>
-        <div dangerouslySetInnerHTML={{ __html: content }} />
-      </div>
+
+      {/* Excerpt or short description */}
+      {excerpt && (
+        <div className="prose prose-lg prose-invert max-w-none">
+          <p>{excerpt}</p>
+        </div>
+      )}
+
+      {/* Full content */}
+      <div
+        className="prose prose-lg prose-invert max-w-none"
+        dangerouslySetInnerHTML={{ __html: safeHtml }}
+      />
     </article>
   );
 }

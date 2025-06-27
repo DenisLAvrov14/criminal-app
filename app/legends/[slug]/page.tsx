@@ -1,47 +1,95 @@
 // File: app/legends/[slug]/page.tsx
 
 import { notFound } from 'next/navigation';
-import React from 'react';
-import LegendArticle, { LegendArticleProps } from '@/app/components/LegendArticle/LegendArticle';
+import LegendArticle from '@/app/components/LegendArticle/LegendArticle';
 
-const ENDPOINT = `${process.env.DIRECTUS_URL}/items/legends`;
-const HEADERS: HeadersInit = process.env.DIRECTUS_TOKEN
-  ? { Authorization: `Bearer ${process.env.DIRECTUS_TOKEN}` }
-  : {};
+const DIRECTUS_URL = process.env.DIRECTUS_URL!;
+const DIRECTUS_TOKEN = process.env.DIRECTUS_TOKEN!;
+const HEADERS: HeadersInit = DIRECTUS_TOKEN ? { Authorization: `Bearer ${DIRECTUS_TOKEN}` } : {};
 
-interface LegendRecord extends LegendArticleProps {
+interface ImageRelation {
+  directus_files_id: string;
+}
+interface LegendRecord {
   slug: string;
+  title: string;
+  excerpt?: string;
+  content: string;
+  fio?: string;
+  nickname?: string;
+  birthdate?: string;
+  deathdate?: string;
+  birthplace?: string;
+  residence?: string;
+  nationality?: string;
+  status?: string;
+  images?: ImageRelation[];
+}
+
+export const revalidate = 60;
+
+export async function generateStaticParams() {
+  const params = new URLSearchParams({
+    'filter[section][_eq]': 'legends',
+    fields: 'slug',
+  });
+  const res = await fetch(`${DIRECTUS_URL}/items/articles?${params}`, { headers: HEADERS });
+  if (!res.ok) return [];
+  const json = await res.json();
+  return (json.data as { slug: string }[]).map(i => ({ slug: i.slug }));
 }
 
 async function fetchLegendBySlug(slug: string): Promise<LegendRecord | null> {
-  const res = await fetch(
-    `${ENDPOINT}?filter[slug][_eq]=${encodeURIComponent(slug)}` +
-      `&fields=slug,title,content,cover.url,` +
-      `fio,nickname,birthdate,birthplace,residence,` +
-      `nationality,status,crowned_date,crowned_place,` +
-      `crowned_by,godparents`,
-    { headers: HEADERS }
-  );
+  const params = new URLSearchParams({
+    'filter[section][_eq]': 'legends',
+    'filter[slug][_eq]': slug,
+    fields: [
+      'slug',
+      'title',
+      'excerpt',
+      'content',
+      'fio',
+      'nickname',
+      'birthdate',
+      'deathdate',
+      'birthplace',
+      'residence',
+      'nationality',
+      'status',
+      'images.directus_files_id',
+    ].join(','),
+  });
+  const res = await fetch(`${DIRECTUS_URL}/items/articles?${params}`, { headers: HEADERS });
   if (!res.ok) return null;
   const json = await res.json();
-  return json.data?.[0] ?? null;
-}
-
-export async function generateStaticParams() {
-  const res = await fetch(`${ENDPOINT}?fields=slug`, { headers: HEADERS });
-  if (!res.ok) return [];
-  const json = await res.json();
-  return (json.data as { slug: string }[]).map(x => ({ slug: x.slug }));
+  return (json.data as LegendRecord[])[0] ?? null;
 }
 
 interface Props {
-  params: { slug: string } | Promise<{ slug: string }>;
+  params: { slug: string };
 }
 
 export default async function LegendDetailPage({ params }: Props) {
-  const { slug } = await params;
-  const record = await fetchLegendBySlug(slug);
+  const record = await fetchLegendBySlug(params.slug);
   if (!record) return notFound();
 
-  return <LegendArticle {...record} />;
+  const imageIds = record.images?.map(i => i.directus_files_id) ?? [];
+  const imageUrls = imageIds.map(id => `${DIRECTUS_URL}/assets/${id}`);
+
+  return (
+    <LegendArticle
+      title={record.title}
+      excerpt={record.excerpt}
+      contentHtml={record.content}
+      imageUrls={imageUrls}
+      fio={record.fio}
+      nickname={record.nickname}
+      birthdate={record.birthdate}
+      deathdate={record.deathdate}
+      birthplace={record.birthplace}
+      residence={record.residence}
+      nationality={record.nationality}
+      status={record.status}
+    />
+  );
 }

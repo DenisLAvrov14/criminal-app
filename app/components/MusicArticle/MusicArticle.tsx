@@ -1,7 +1,6 @@
-'use client';
-
 import React from 'react';
 import Image from 'next/image';
+import DOMPurify from 'isomorphic-dompurify';
 
 export interface MusicArticleProps {
   title: string;
@@ -73,7 +72,7 @@ export default function MusicArticle({
           ) : (
             <div
               className="prose prose-lg prose-invert max-w-none"
-              dangerouslySetInnerHTML={{ __html: contentHtml }}
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(contentHtml) }}
             />
           )}
         </div>
@@ -84,7 +83,7 @@ export default function MusicArticle({
             <Image
               src={coverUrl}
               alt={title}
-              width={200} // уменьшенный размер
+              width={200}
               height={200}
               className="rounded-lg shadow-lg mb-4"
               priority
