@@ -1,66 +1,101 @@
+// File: app/[section]/[slug]/page.tsx
+
 import { notFound } from 'next/navigation';
-import DefaultArticle from '@/app/components/DefaultArticle/DefaultArticle';
-import LegendArticle from '@/app/components/LegendArticle/LegendArticle';
+import Head from 'next/head';
+import { Metadata } from 'next';
+import { fetchArticleBySlug } from '@/app/lib/api';
+import { Article } from '@/app/lib/types';
+import Breadcrumbs from '@/app/ui/Breadcrumbs/Breadcrumbs';
+import BackButton from '@/app/ui/BackButton.tsx/BackButton';
 
-const DIRECTUS_URL = process.env.DIRECTUS_URL!;
-const DIRECTUS_TOKEN = process.env.DIRECTUS_TOKEN!;
+const SITE_URL = process.env.SITE_URL || 'http://localhost:3000';
+export const revalidate = 60;
 
-async function fetchBySectionSlug(section: string, slug: string) {
-  const res = await fetch(
-    `${DIRECTUS_URL}/items/${section}?filter[slug][_eq]=${encodeURIComponent(slug)}`,
-    { headers: DIRECTUS_TOKEN ? { Authorization: `Bearer ${DIRECTUS_TOKEN}` } : {} }
-  );
-  if (!res.ok) return null;
-  const { data } = await res.json();
-  return data?.[0] ?? null;
-}
-
-export async function generateStaticParams() {
-  const sections = ['music', 'legends'];
-  const all = await Promise.all(
-    sections.map(async section => {
-      const res = await fetch(`${DIRECTUS_URL}/items/${section}?fields=slug`, {
-        headers: DIRECTUS_TOKEN ? { Authorization: `Bearer ${DIRECTUS_TOKEN}` } : {},
-      });
-      if (!res.ok) return [];
-      const { data } = await res.json();
-      return data.map((item: { slug: string }) => ({ section, slug: item.slug }));
-    })
-  );
-  return all.flat();
-}
-
-export default async function SectionDetailPage({
+// SEO: title/description/OG/twitter + canonical
+export async function generateMetadata({
   params,
 }: {
-  params: { section: string; slug: string } | Promise<{ section: string; slug: string }>;
-}) {
-  // ждём params
+  params: Promise<{ section: string; slug: string }>;
+}): Promise<Metadata> {
   const { section, slug } = await params;
+  const article: Article = await fetchArticleBySlug(slug);
 
-  const data = await fetchBySectionSlug(section, slug);
-  if (!data) return notFound();
-
-  if (section === 'legends') {
-    return (
-      <LegendArticle
-        title={data.title}
-        content={data.content}
-        cover={{
-          url: '',
-        }}
-        fio={''}
-        nickname={''}
-        birthdate={''}
-        birthplace={''}
-        residence={''}
-        nationality={''}
-        status={''}
-        crowned_date={''}
-        crowned_place={''}
-      />
-    );
+  if (!article || article.section !== section) {
+    return { title: 'Not Found' };
   }
 
-  return <DefaultArticle {...data} />;
+  const pageUrl = `${SITE_URL}/${section}/${slug}`;
+  // Берём первую картинку из images[]
+  const image = article.images?.[0]?.url;
+
+  return {
+    title: article.meta_title || article.title,
+    description: article.meta_description || article.excerpt || '',
+    alternates: { canonical: pageUrl },
+    openGraph: {
+      title: article.meta_title || article.title,
+      description: article.meta_description || article.excerpt || '',
+      url: pageUrl,
+      siteName: 'Russian Prison Culture',
+      images: image ? [image] : [],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: article.meta_title || article.title,
+      description: article.meta_description || article.excerpt || '',
+      images: image ? [image] : [],
+    },
+  };
+}
+
+interface Props {
+  params: Promise<{ section: string; slug: string }>;
+}
+
+export default async function SectionSlugPage({ params }: Props) {
+  const { section, slug } = await params;
+  const article: Article = await fetchArticleBySlug(slug);
+
+  if (!article || article.section !== section) {
+    return notFound();
+  }
+
+  const { title, excerpt, images } = article;
+  // Первая картинка
+  const imageUrl = images?.[0]?.url;
+
+  return (
+    <>
+      <Head>
+        <link rel="canonical" href={`${SITE_URL}/${section}/${slug}`} />
+      </Head>
+
+      <div className="page-wrapper container mx-auto px-6 py-12 space-y-8">
+        {/* Навигация */}
+        <Breadcrumbs
+          items={[
+            { label: 'Home', href: '/' },
+            {
+              label: section.charAt(0).toUpperCase() + section.slice(1),
+              href: `/${section}`,
+            },
+            { label: title },
+          ]}
+        />
+
+        {/* Фото */}
+        {imageUrl && (
+          <div className="w-full h-80 relative rounded-lg overflow-hidden shadow-lg">
+            <img src={imageUrl} alt={title} className="object-cover w-full h-full" />
+          </div>
+        )}
+
+        {/* Описание */}
+        {excerpt && <p className="text-lg text-[#ddd]">{excerpt}</p>}
+
+        {/* Кнопка «Назад» */}
+        <BackButton />
+      </div>
+    </>
+  );
 }
