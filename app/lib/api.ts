@@ -70,7 +70,7 @@ function buildUrl(f: DirectusFile): string {
 }
 
 /** Преобразование из DirectusArticle → наш Article */
-function transformArticle(item: DirectusArticle): Article {
+export function transformArticle(item: DirectusArticle): Article {
   // M2M images (wrapper.directus_files_id)
   const images: File[] = (item.images ?? [])
     .map(wrapper => wrapper.directus_files_id)

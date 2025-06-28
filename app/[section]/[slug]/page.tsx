@@ -1,5 +1,4 @@
 // File: app/[section]/[slug]/page.tsx
-
 import { notFound } from 'next/navigation';
 import Head from 'next/head';
 import { Metadata } from 'next';
@@ -7,25 +6,35 @@ import { fetchArticleBySlug } from '@/app/lib/api';
 import { Article } from '@/app/lib/types';
 import Breadcrumbs from '@/app/ui/Breadcrumbs/Breadcrumbs';
 import BackButton from '@/app/ui/BackButton.tsx/BackButton';
+import { ContactSection } from '@/app/components/ContactSection/ContactSection';
 
 const SITE_URL = process.env.SITE_URL || 'http://localhost:3000';
 export const revalidate = 60;
 
-// SEO: title/description/OG/twitter + canonical
+// Server-side metadata generation
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ section: string; slug: string }>;
+  params: { section: string; slug: string };
 }): Promise<Metadata> {
-  const { section, slug } = await params;
-  const article: Article = await fetchArticleBySlug(slug);
+  const { section, slug } = params;
 
+  // If someone lands on /contact, show contact metadata
+  if (slug === 'contact') {
+    return {
+      title: 'Contact the Author',
+      description: 'Questions? Feedback? Drop me a line below.',
+      alternates: { canonical: `${SITE_URL}/contact` },
+    };
+  }
+
+  // Otherwise load article metadata
+  const article: Article = await fetchArticleBySlug(slug);
   if (!article || article.section !== section) {
     return { title: 'Not Found' };
   }
 
   const pageUrl = `${SITE_URL}/${section}/${slug}`;
-  // Берём первую картинку из images[]
   const image = article.images?.[0]?.url;
 
   return {
@@ -49,19 +58,24 @@ export async function generateMetadata({
 }
 
 interface Props {
-  params: Promise<{ section: string; slug: string }>;
+  params: { section: string; slug: string };
 }
 
 export default async function SectionSlugPage({ params }: Props) {
-  const { section, slug } = await params;
-  const article: Article = await fetchArticleBySlug(slug);
+  const { section, slug } = params;
 
+  // If slug is "contact" at any /[section]/contact, render the form
+  if (slug === 'contact') {
+    return <ContactSection />;
+  }
+
+  // Otherwise load and render the article
+  const article: Article = await fetchArticleBySlug(slug);
   if (!article || article.section !== section) {
     return notFound();
   }
 
   const { title, excerpt, images } = article;
-  // Первая картинка
   const imageUrl = images?.[0]?.url;
 
   return (
@@ -71,7 +85,6 @@ export default async function SectionSlugPage({ params }: Props) {
       </Head>
 
       <div className="page-wrapper container mx-auto px-6 py-12 space-y-8">
-        {/* Навигация */}
         <Breadcrumbs
           items={[
             { label: 'Home', href: '/' },
@@ -83,18 +96,17 @@ export default async function SectionSlugPage({ params }: Props) {
           ]}
         />
 
-        {/* Фото */}
         {imageUrl && (
           <div className="w-full h-80 relative rounded-lg overflow-hidden shadow-lg">
             <img src={imageUrl} alt={title} className="object-cover w-full h-full" />
           </div>
         )}
 
-        {/* Описание */}
         {excerpt && <p className="text-lg text-[#ddd]">{excerpt}</p>}
 
-        {/* Кнопка «Назад» */}
         <BackButton />
+
+        {/* Here your main article content would go */}
       </div>
     </>
   );

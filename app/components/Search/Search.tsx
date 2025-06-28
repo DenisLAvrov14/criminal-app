@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, Fragment, type ChangeEvent } from 'react';
+import { useState, useEffect, Fragment, type ChangeEvent } from 'react';
 import { Combobox, Transition } from '@headlessui/react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
@@ -11,6 +11,7 @@ interface Article {
   title: string;
   excerpt: string;
   slug: string;
+  section: string;
 }
 
 export function Search() {
@@ -19,48 +20,52 @@ export function Search() {
   const [results, setResults] = useState<Article[]>([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!query.trim()) {
       setResults([]);
       return;
     }
+
     setLoading(true);
     const ctl = new AbortController();
+
     fetch(`/api/search?q=${encodeURIComponent(query)}&limit=5&page=${page}`, {
       signal: ctl.signal,
     })
       .then(r => r.json())
       .then((data: Article[]) => {
+        console.log('[Search API] Got results:', data);
         setResults(prev => (page === 1 ? data : [...prev, ...data]));
       })
       .catch(() => {})
       .finally(() => setLoading(false));
+
     return () => ctl.abort();
   }, [query, page]);
 
   const onSelect = (item: Article) => {
-    // сразу уходим на страницу статьи
-    router.push(`/articles/${item.slug}`);
+    if (!item.section) {
+      console.warn('[Search] missing section on item', item);
+      return;
+    }
+    router.push(`/${item.section}/${item.slug}`);
   };
 
   return (
     <div className="relative z-20 max-w-xl mx-auto">
-      <Combobox<Article> value={undefined} onChange={onSelect}>
-        {/* Input */}
+      <Combobox<Article> onChange={onSelect}>
+        {/* Поле ввода */}
         <div className="relative">
           <Combobox.Input
-            ref={inputRef}
             className="
-            w-full
-            pl-10 pr-4 py-3
-            bg-white bg-opacity-90 backdrop-blur-sm
-            text-gray-900 placeholder-gray-500
-            border border-gray-300 rounded-full
-            focus:outline-none focus:ring-2 focus:ring-blue-500
-            transition
-          "
+              w-full pl-10 pr-4 py-3
+              bg-white bg-opacity-90 backdrop-blur-sm
+              text-gray-900 placeholder-gray-500
+              border border-gray-300 rounded-full
+              focus:outline-none focus:ring-2 focus:ring-blue-500
+              transition
+            "
             placeholder="Search articles…"
             displayValue={() => query}
             onChange={(e: ChangeEvent<HTMLInputElement>) => {
@@ -74,7 +79,7 @@ export function Search() {
           />
         </div>
 
-        {/* Dropdown */}
+        {/* Выпадающий список */}
         <Transition
           as={Fragment}
           show={!!query.trim()}
@@ -88,13 +93,11 @@ export function Search() {
           <Combobox.Options
             static
             className="
-            absolute left-0 right-0
-            mt-2
-            bg-white bg-opacity-95 backdrop-blur-sm
-            border border-gray-200 rounded-lg
-            shadow-lg
-            max-h-64 overflow-auto
-          "
+              absolute left-0 right-0 mt-2
+              bg-white bg-opacity-95 backdrop-blur-sm
+              border border-gray-200 rounded-lg
+              shadow-lg max-h-64 overflow-auto
+            "
           >
             {loading ? (
               Array.from({ length: 3 }).map((_, i) => (
@@ -126,10 +129,10 @@ export function Search() {
                 <button
                   onClick={() => setPage(p => p + 1)}
                   className="
-                  inline-block px-4 py-2
-                  bg-blue-600 text-white rounded-md
-                  hover:bg-blue-700 transition
-                "
+                    inline-block px-4 py-2
+                    bg-blue-600 text-white rounded-md
+                    hover:bg-blue-700 transition
+                  "
                 >
                   Load more
                 </button>
