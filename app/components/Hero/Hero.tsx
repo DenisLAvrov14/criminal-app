@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { ArrowDownIcon } from '@heroicons/react/24/outline';
+import { Search } from '../Search/Search';
 
 export const Hero: React.FC = () => {
   const [query, setQuery] = useState('');
@@ -44,21 +45,7 @@ export const Hero: React.FC = () => {
         </p>
 
         {/* Search Form */}
-        <form onSubmit={handleSearch} className="w-full max-w-md flex">
-          <input
-            type="text"
-            value={query}
-            onChange={e => setQuery(e.target.value)}
-            placeholder="Search articles..."
-            className="flex-1 px-4 py-2 rounded-l bg-white text-black placeholder-gray-500 focus:outline-none"
-          />
-          <button
-            type="submit"
-            className="px-4 py-2 bg-[#c9ad77] text-black font-semibold rounded-r hover:bg-[#b59a68] transition"
-          >
-            Search
-          </button>
-        </form>
+        <Search />
       </div>
 
       {/* Scroll hint */}
