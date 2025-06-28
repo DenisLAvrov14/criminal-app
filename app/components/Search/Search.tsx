@@ -1,7 +1,10 @@
 'use client';
 
-import { useState, useRef, type ChangeEvent } from 'react';
-import Link from 'next/link';
+import { useState, useRef, useEffect, Fragment, type ChangeEvent } from 'react';
+import { Combobox, Transition } from '@headlessui/react';
+import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
+import { Search as SearchIcon } from 'lucide-react';
 
 interface Article {
   id: number;
@@ -11,94 +14,130 @@ interface Article {
 }
 
 export function Search() {
-  console.log('🔍 Search component rendered');
-
+  const router = useRouter();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Article[]>([]);
   const [loading, setLoading] = useState(false);
-  // инициализируем реф как null
-  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  const [page, setPage] = useState(1);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setQuery(val);
-
-    // сбрасываем прошлый таймаут
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-    }
-
-    // ставим новый
-    debounceRef.current = setTimeout(() => {
-      if (!val.trim()) {
-        setResults([]);
-      } else {
-        performSearch(val);
-      }
-    }, 300);
-  };
-
-  const performSearch = async (q: string) => {
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}&limit=5`);
-      if (!res.ok) throw new Error('Search failed');
-      const data: Article[] = await res.json();
-      setResults(data);
-    } catch (err) {
-      console.error(err);
+  useEffect(() => {
+    if (!query.trim()) {
       setResults([]);
-    } finally {
-      setLoading(false);
+      return;
     }
+    setLoading(true);
+    const ctl = new AbortController();
+    fetch(`/api/search?q=${encodeURIComponent(query)}&limit=5&page=${page}`, {
+      signal: ctl.signal,
+    })
+      .then(r => r.json())
+      .then((data: Article[]) => {
+        setResults(prev => (page === 1 ? data : [...prev, ...data]));
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+    return () => ctl.abort();
+  }, [query, page]);
+
+  const onSelect = (item: Article) => {
+    // сразу уходим на страницу статьи
+    router.push(`/articles/${item.slug}`);
   };
 
   return (
-    <div className="max-w-xl mx-auto my-8">
-      {/* Поле поиска */}
-      <div className="relative">
-        <input
-          type="text"
-          value={query}
-          onChange={onChange}
-          placeholder="Поиск статей..."
-          className="
-            w-full pl-10 pr-4 py-2 
-            bg-white text-black placeholder-gray-500 
-            border border-gray-300 rounded-md
+    <div className="relative z-20 max-w-xl mx-auto">
+      <Combobox<Article> value={undefined} onChange={onSelect}>
+        {/* Input */}
+        <div className="relative">
+          <Combobox.Input
+            ref={inputRef}
+            className="
+            w-full
+            pl-10 pr-4 py-3
+            bg-white bg-opacity-90 backdrop-blur-sm
+            text-gray-900 placeholder-gray-500
+            border border-gray-300 rounded-full
             focus:outline-none focus:ring-2 focus:ring-blue-500
+            transition
           "
-        />
-        {/* Лупа */}
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-          🔍
-        </span>
-      </div>
+            placeholder="Search articles…"
+            displayValue={() => query}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => {
+              setQuery(e.target.value);
+              setPage(1);
+            }}
+          />
+          <SearchIcon
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+            size={20}
+          />
+        </div>
 
-      {/* Статусы */}
-      {loading && <p className="mt-2 text-sm text-gray-500">Ищем…</p>}
-      {!loading && query && results.length === 0 && (
-        <p className="mt-2 text-sm text-gray-500">Ничего не найдено.</p>
-      )}
+        {/* Dropdown */}
+        <Transition
+          as={Fragment}
+          show={!!query.trim()}
+          enter="transition ease-out duration-150"
+          enterFrom="opacity-0 translate-y-1 scale-95"
+          enterTo="opacity-100 translate-y-0 scale-100"
+          leave="transition ease-in duration-100"
+          leaveFrom="opacity-100 translate-y-0 scale-100"
+          leaveTo="opacity-0 translate-y-1 scale-95"
+        >
+          <Combobox.Options
+            static
+            className="
+            absolute left-0 right-0
+            mt-2
+            bg-white bg-opacity-95 backdrop-blur-sm
+            border border-gray-200 rounded-lg
+            shadow-lg
+            max-h-64 overflow-auto
+          "
+          >
+            {loading ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="px-4 py-3 animate-pulse">
+                  <div className="h-4 bg-gray-200 rounded mb-2" />
+                  <div className="h-3 bg-gray-200 rounded w-3/4" />
+                </div>
+              ))
+            ) : results.length === 0 ? (
+              <div className="px-4 py-3 text-center text-gray-500">No results found.</div>
+            ) : (
+              results.map(item => (
+                <Combobox.Option
+                  key={item.id}
+                  as={motion.div}
+                  layout
+                  whileHover={{ backgroundColor: '#F3F4F6' }}
+                  className="cursor-pointer px-4 py-3 border-b last:border-none"
+                  value={item}
+                >
+                  <h3 className="font-semibold text-gray-800">{item.title}</h3>
+                  <p className="text-sm text-gray-600 mt-1 line-clamp-2">{item.excerpt}</p>
+                </Combobox.Option>
+              ))
+            )}
 
-      {/* Результаты */}
-      {!loading && results.length > 0 && (
-        <ul className="mt-4 space-y-3">
-          {results.map(item => (
-            <li key={item.id} className="p-3 border rounded-md hover:shadow">
-              <Link href={`/articles/${item.slug}`}>
-                <h3 className="text-lg font-semibold hover:underline">
-                  <span dangerouslySetInnerHTML={{ __html: item.title }} />
-                </h3>
-              </Link>
-              <p
-                className="mt-1 text-sm text-gray-600"
-                dangerouslySetInnerHTML={{ __html: item.excerpt }}
-              />
-            </li>
-          ))}
-        </ul>
-      )}
+            {!loading && results.length >= 5 && (
+              <div className="text-center py-2">
+                <button
+                  onClick={() => setPage(p => p + 1)}
+                  className="
+                  inline-block px-4 py-2
+                  bg-blue-600 text-white rounded-md
+                  hover:bg-blue-700 transition
+                "
+                >
+                  Load more
+                </button>
+              </div>
+            )}
+          </Combobox.Options>
+        </Transition>
+      </Combobox>
     </div>
   );
 }
