@@ -7,7 +7,7 @@ const fetch = require('node-fetch');
 const { DIRECTUS_URL, MEILI_HOST, MEILI_MASTER_KEY, MEILI_INDEX = 'articles' } = process.env;
 
 async function fetchArticles() {
-const url = `${DIRECTUS_URL}/items/articles?fields=id,title,excerpt,content,slug,section`;
+  const url = `${DIRECTUS_URL}/items/articles?fields=id,title,excerpt,content,slug,section`;
   const res = await fetch(url);
   if (!res.ok) {
     throw new Error(`Directus API error ${res.status}`);
@@ -38,7 +38,7 @@ async function main() {
     excerpt: a.excerpt,
     content: a.content,
     slug: a.slug,
-    section: a.section, 
+    section: a.section,
   }));
 
   const index = client.index(MEILI_INDEX);

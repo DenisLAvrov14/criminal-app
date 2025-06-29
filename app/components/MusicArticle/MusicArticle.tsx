@@ -48,9 +48,13 @@ export default function MusicArticle({
 
   return (
     <article className="container mx-auto py-12 space-y-12">
+      {/* 1. Заголовок всегда первым */}
+      <h1 className="text-3xl font-bold">{title}</h1>
+
+      {/* 2. Грид: 1 колонка на мобилке, 3 на md+ */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {/* LEFT: видео или HTML */}
-        <div className="md:col-span-2 space-y-8">
+        {/* A) Видео + excerpt */}
+        <div className="order-2 md:order-1 md:col-span-2 space-y-8">
           {embedUrl ? (
             <>
               <div className="relative" style={{ paddingTop: '56.25%' }}>
@@ -72,13 +76,15 @@ export default function MusicArticle({
           ) : (
             <div
               className="prose prose-lg prose-invert max-w-none"
-              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(contentHtml) }}
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(contentHtml),
+              }}
             />
           )}
         </div>
 
-        {/* RIGHT: изображение и информация */}
-        <div className="space-y-6 text-[#ddd] flex flex-col items-center md:items-end md:text-right">
+        {/* B) Инфоблок о музыканте */}
+        <div className="order-1 md:order-2 space-y-6 text-[#ddd] flex flex-col items-center md:items-end md:text-right">
           {coverUrl && (
             <Image
               src={coverUrl}

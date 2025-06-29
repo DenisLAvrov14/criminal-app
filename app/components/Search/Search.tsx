@@ -4,7 +4,7 @@ import { useState, useEffect, Fragment, type ChangeEvent } from 'react';
 import { Combobox, Transition } from '@headlessui/react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { Search as SearchIcon } from 'lucide-react';
+import { Search as SearchIcon, X as XIcon } from 'lucide-react';
 
 interface Article {
   id: number;
@@ -26,7 +26,6 @@ export function Search() {
       setResults([]);
       return;
     }
-
     setLoading(true);
     const ctl = new AbortController();
 
@@ -34,10 +33,7 @@ export function Search() {
       signal: ctl.signal,
     })
       .then(r => r.json())
-      .then((data: Article[]) => {
-        console.log('[Search API] Got results:', data);
-        setResults(prev => (page === 1 ? data : [...prev, ...data]));
-      })
+      .then((data: Article[]) => setResults(page === 1 ? data : prev => [...prev, ...data]))
       .catch(() => {})
       .finally(() => setLoading(false));
 
@@ -45,41 +41,48 @@ export function Search() {
   }, [query, page]);
 
   const onSelect = (item: Article) => {
-    if (!item.section) {
-      console.warn('[Search] missing section on item', item);
-      return;
-    }
     router.push(`/${item.section}/${item.slug}`);
   };
 
   return (
-    <div className="relative z-20 max-w-xl mx-auto">
+    <div className="relative z-20 w-full px-4 lg:w-[25%] mx-auto">
       <Combobox<Article> onChange={onSelect}>
-        {/* Поле ввода */}
         <div className="relative">
+          <SearchIcon
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+            size={20}
+            aria-hidden
+          />
+
           <Combobox.Input
             className="
-              w-full pl-10 pr-4 py-3
+              w-full pl-12 pr-10 py-3
               bg-white bg-opacity-90 backdrop-blur-sm
               text-gray-900 placeholder-gray-500
               border border-gray-300 rounded-full
               focus:outline-none focus:ring-2 focus:ring-blue-500
               transition
             "
-            placeholder="Search articles…"
+            placeholder="Search articles..."
+            aria-label="Search articles"
             displayValue={() => query}
             onChange={(e: ChangeEvent<HTMLInputElement>) => {
               setQuery(e.target.value);
               setPage(1);
             }}
           />
-          <SearchIcon
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-            size={20}
-          />
+
+          {query && (
+            <button
+              onClick={() => setQuery('')}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              aria-label="Clear search"
+            >
+              <XIcon size={18} />
+            </button>
+          )}
         </div>
 
-        {/* Выпадающий список */}
         <Transition
           as={Fragment}
           show={!!query.trim()}
@@ -118,8 +121,15 @@ export function Search() {
                   className="cursor-pointer px-4 py-3 border-b last:border-none"
                   value={item}
                 >
-                  <h3 className="font-semibold text-gray-800">{item.title}</h3>
-                  <p className="text-sm text-gray-600 mt-1 line-clamp-2">{item.excerpt}</p>
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1 pr-2">
+                      <h3 className="font-semibold text-gray-800">{item.title}</h3>
+                      <p className="text-sm text-gray-600 mt-1 line-clamp-2">{item.excerpt}</p>
+                    </div>
+                    <span className="ml-2 inline-block bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full">
+                      {item.section}
+                    </span>
+                  </div>
                 </Combobox.Option>
               ))
             )}
@@ -128,11 +138,7 @@ export function Search() {
               <div className="text-center py-2">
                 <button
                   onClick={() => setPage(p => p + 1)}
-                  className="
-                    inline-block px-4 py-2
-                    bg-blue-600 text-white rounded-md
-                    hover:bg-blue-700 transition
-                  "
+                  className="inline-block px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
                 >
                   Load more
                 </button>

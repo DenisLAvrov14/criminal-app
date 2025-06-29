@@ -41,11 +41,13 @@ export default function LegendArticle({
 
   return (
     <article className="container mx-auto py-12 space-y-8">
+      {/* 1. Заголовок всегда первым */}
       <h1 className="text-3xl font-bold mb-6">{title}</h1>
 
-      {/* Grid: cover left, info right */}
+      {/* 2. Грид: на мобилке один столбец, на md+ — три */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="md:col-span-2">
+        {/* A) Большая картинка: на мобилке вторая, на md+ — первая */}
+        <div className="order-2 md:order-1 md:col-span-2">
           {coverUrl && (
             <div className="relative w-full h-96">
               <Image
@@ -59,7 +61,8 @@ export default function LegendArticle({
           )}
         </div>
 
-        <div className="space-y-6 text-[#ddd] flex flex-col items-center md:items-end md:text-right">
+        {/* B) Инфоблок: на мобилке первый, на md+ — второй */}
+        <div className="order-1 md:order-2 space-y-6 text-[#ddd] flex flex-col items-center md:items-end md:text-right">
           {coverUrl && (
             <Image
               src={coverUrl}
@@ -123,14 +126,14 @@ export default function LegendArticle({
         </div>
       </div>
 
-      {/* Excerpt or short description */}
+      {/* 3. Краткое описание */}
       {excerpt && (
         <div className="prose prose-lg prose-invert max-w-none">
           <p>{excerpt}</p>
         </div>
       )}
 
-      {/* Full content */}
+      {/* 4. Полный контент */}
       <div
         className="prose prose-lg prose-invert max-w-none"
         dangerouslySetInnerHTML={{ __html: safeHtml }}

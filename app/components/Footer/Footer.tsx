@@ -4,6 +4,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { ArrowUpIcon } from '@heroicons/react/24/outline';
+import { FooterSubscribe } from '../FooterSubscribe/FooterSubscribe';
 
 export const Footer: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -29,25 +30,7 @@ export const Footer: React.FC = () => {
       "
       >
         {/* 3. Подписка */}
-        <div className="flex flex-col items-center space-y-2 md:flex-row md:space-y-0 md:space-x-4">
-          <span className="text-sm text-[#c9ad77] font-medium tracking-wide">Stay Updated</span>
-          <form onSubmit={handleSubscribe} className="w-full md:w-auto flex">
-            <input
-              type="email"
-              required
-              placeholder="Your email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              className="flex-1 px-3 py-2 bg-[#222] text-white placeholder-[#555] rounded-l focus:outline-none text-sm"
-            />
-            <button
-              type="submit"
-              className="px-4 py-2 bg-[#c9ad77] text-black font-medium rounded-r hover:bg-[#b59a68] transition text-sm"
-            >
-              Subscribe
-            </button>
-          </form>
-        </div>
+        <FooterSubscribe />
 
         {/* 1. © */}
         <div className="text-xs md:text-sm">&copy; {year} Russian Prison Culture</div>
