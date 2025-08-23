@@ -1,6 +1,7 @@
-// app/terms/page.tsx
+// File: app/terms/page.tsx
+
 import React from 'react';
-import { CloseButton } from '../ui/CloseButton/CloseButton';
+import { CloseButton } from '@/app/ui/CloseButton/CloseButton';
 
 export const metadata = {
   title: 'Terms of Service — Russian Prison Culture',
@@ -13,13 +14,12 @@ export default function TermsPage() {
       <CloseButton />
       <div className="max-w-3xl mx-auto space-y-8">
         <h1 className="text-3xl font-bold text-center">Terms of Service</h1>
-        <p className="text-center text-sm">Effective date: [Date]</p>
 
         {/* 1. Acceptance */}
         <section className="space-y-2">
           <h2 className="text-2xl font-semibold">1. Acceptance of Terms</h2>
           <p>
-            By accessing or using the Russian Prison Culture website ("Site"), you agree to be bound
+            By accessing or using the Russian Prison Culture website (&quot;Site&quot;), you agree to be bound
             by these Terms of Service and all applicable laws and regulations. If you do not agree,
             please do not use the Site.
           </p>
@@ -59,7 +59,7 @@ export default function TermsPage() {
         <section className="space-y-2">
           <h2 className="text-2xl font-semibold">5. Limitation of Liability</h2>
           <p>
-            The Site is provided "as is" without warranties of any kind. Russian Prison Culture will
+            The Site is provided &quot;as is&quot; without warranties of any kind. Russian Prison Culture will
             not be liable for any damages arising from your use of the Site.
           </p>
         </section>

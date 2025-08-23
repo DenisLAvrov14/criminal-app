@@ -10,7 +10,7 @@ const DIRECTUS_TOKEN = process.env.DIRECTUS_TOKEN!;
  * Разворачиваем images и cover через junction-ключи.
  * Добавлены поля из Directus для базовых статей.
  */
-const ARTICLE_FIELDS = [
+export const ARTICLE_FIELDS = [
   'id',
   'slug',
   'title',
@@ -39,7 +39,7 @@ const getHeaders = (): Record<string, string> => ({
 });
 
 /** Выполняет запрос и отдает массив сырых DirectusArticle */
-async function fetchFromDirectus(params: URLSearchParams): Promise<DirectusArticle[]> {
+export async function fetchFromDirectus(params: URLSearchParams): Promise<DirectusArticle[]> {
   const url = new URL(`${DIRECTUS_URL}/items/articles`);
   params.forEach((v, k) => url.searchParams.set(k, v));
 
@@ -59,14 +59,10 @@ async function fetchFromDirectus(params: URLSearchParams): Promise<DirectusArtic
 
 /** Собирает абсолютный URL для DirectusFile */
 function buildUrl(f: DirectusFile): string {
-  const path =
-    f.url && f.url !== null
-      ? f.url.startsWith('http')
-        ? f.url
-        : `${DIRECTUS_URL}${f.url}`
-      : `${DIRECTUS_URL}/assets/${f.id}`;
-  console.log('> buildUrl for file:', f.id, '→', path);
-  return path;
+  if (f.url) {
+    return f.url.startsWith('http') ? f.url : `${DIRECTUS_URL}${f.url}`;
+  }
+  return `${DIRECTUS_URL}/assets/${f.id}`;
 }
 
 /** Преобразование из DirectusArticle → наш Article */
@@ -74,7 +70,7 @@ export function transformArticle(item: DirectusArticle): Article {
   // M2M images (wrapper.directus_files_id)
   const images: File[] = (item.images ?? [])
     .map(wrapper => wrapper.directus_files_id)
-    .filter((f): f is DirectusFile => !!f)
+    .filter((f): f is DirectusFile => Boolean(f))
     .map(f => ({
       id: f.id,
       url: buildUrl(f),
@@ -87,18 +83,31 @@ export function transformArticle(item: DirectusArticle): Article {
 
   // single-file cover может быть wrapper или сразу DirectusFile
   let cover: File | null = null;
-  const rawCover = (item.cover as any)?.directus_files_id ?? (item.cover as any);
-  if (rawCover && typeof rawCover.id === 'string') {
-    const f = rawCover as DirectusFile;
-    cover = {
-      id: f.id,
-      url: buildUrl(f),
-      title: f.title,
-      description: f.description ?? undefined,
-      type: f.type,
-      size: f.filesize,
-      alt_text: f.alt_text ?? undefined,
-    };
+  const coverField = item.cover as unknown;
+  if (coverField && typeof coverField === 'object') {
+    if ('directus_files_id' in coverField) {
+      const f = (coverField as { directus_files_id: DirectusFile }).directus_files_id;
+      cover = {
+        id: f.id,
+        url: buildUrl(f),
+        title: f.title,
+        description: f.description ?? undefined,
+        type: f.type,
+        size: f.filesize,
+        alt_text: f.alt_text ?? undefined,
+      };
+    } else if ('id' in coverField) {
+      const f = coverField as DirectusFile;
+      cover = {
+        id: f.id,
+        url: buildUrl(f),
+        title: f.title,
+        description: f.description ?? undefined,
+        type: f.type,
+        size: f.filesize,
+        alt_text: f.alt_text ?? undefined,
+      };
+    }
   }
 
   return {
@@ -169,15 +178,39 @@ export async function fetchArticlesWithPagination(
   const countParams = new URLSearchParams({ fields: 'id' });
   const all = await fetchFromDirectus(countParams);
 
-  console.log(
-    '⏳ Fetching articles from:',
-    `${DIRECTUS_URL}/items/articles?${params.toString()}`,
-    '\nToken starts with:',
-    DIRECTUS_TOKEN?.slice(0, 8)
-  );
-
   return {
     articles: items.map(transformArticle),
     total: all.length,
   };
+}
+
+export async function getSimilarArticles(
+  slug: string,
+  section: string
+): Promise<Article[]> {
+  // убираем возможный конец «/»
+  const base = DIRECTUS_URL.replace(/\/$/, '');
+  const url = [
+    `${base}/items/articles`,
+    `filter[slug][_neq]=${encodeURIComponent(slug)}`,
+    `filter[section][_eq]=${encodeURIComponent(section)}`,
+    `limit=3`,
+    `sort=-id`,
+  ].join('&').replace(`${base}/items/articles&`, `${base}/items/articles?`);
+
+  const res = await fetch(url, {
+    headers: DIRECTUS_TOKEN
+      ? { Authorization: `Bearer ${DIRECTUS_TOKEN}` }
+      : {},
+    next: { revalidate: 60 }, // ISR каждые 60 секунд
+  });
+
+  if (!res.ok) {
+    console.error('getSimilarArticles error', res.status, await res.text());
+    return [];
+  }
+
+  const json = await res.json();
+  // если data не массив — возвращаем пустой
+  return Array.isArray(json.data) ? json.data : [];
 }

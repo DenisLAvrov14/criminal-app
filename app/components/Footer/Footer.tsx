@@ -1,20 +1,12 @@
-// components/Footer.tsx
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { ArrowUpIcon } from '@heroicons/react/24/outline';
 import { FooterSubscribe } from '../FooterSubscribe/FooterSubscribe';
 
 export const Footer: React.FC = () => {
-  const [email, setEmail] = useState('');
   const year = new Date().getFullYear();
-
-  const handleSubscribe = (e: React.FormEvent) => {
-    e.preventDefault();
-    alert(`Subscribed: ${email}`);
-    setEmail('');
-  };
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -25,7 +17,7 @@ export const Footer: React.FC = () => {
       <div
         className="
         container mx-auto px-4 
-        flex flex-col items-center space-y-6     /* ← добавлено items-center */
+        flex flex-col items-center space-y-6
         md:flex-row md:items-center md:justify-between md:space-y-0
       "
       >

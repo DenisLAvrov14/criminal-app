@@ -1,4 +1,3 @@
-// app/api/search/route.ts
 import { NextResponse } from 'next/server';
 
 const MEILI_HOST = process.env.MEILI_HOST!;
@@ -14,11 +13,11 @@ type MeiliHit = {
   // …все остальные поля, которые у вас есть в индексе
 };
 
-export async function GET(request: Request) {
+export async function GET(request: Request): Promise<NextResponse> {
   try {
     const { searchParams } = new URL(request.url);
-    const q = searchParams.get('q') || '';
-    const limit = Number(searchParams.get('limit') || '5');
+    const q = searchParams.get('q') ?? '';
+    const limit = Number(searchParams.get('limit') ?? '5');
 
     const meiliRes = await fetch(`${MEILI_HOST}/indexes/${INDEX}/search`, {
       method: 'POST',
@@ -26,12 +25,7 @@ export async function GET(request: Request) {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${MEILI_KEY}`,
       },
-      body: JSON.stringify({
-        q,
-        limit,
-        // если хотите пагинацию:
-        // offset: (Number(searchParams.get('page') || '1') - 1) * limit
-      }),
+      body: JSON.stringify({ q, limit }),
     });
 
     if (!meiliRes.ok) {
@@ -43,9 +37,9 @@ export async function GET(request: Request) {
       );
     }
 
-    const { hits } = (await meiliRes.json()) as { hits: MeiliHit[] };
+    const payload = (await meiliRes.json()) as { hits: MeiliHit[] };
+    const { hits } = payload;
 
-    // Маппим хиты, чтобы явно вернуть только нужные поля
     const results = hits.map(hit => ({
       id: hit.id,
       title: hit.title,
@@ -56,8 +50,12 @@ export async function GET(request: Request) {
 
     console.log('[Search API] Отдаю результаты:', results);
     return NextResponse.json(results);
-  } catch (err: any) {
-    console.error('Search API unexpected error:', err);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error('Search API unexpected error:', message);
+    return NextResponse.json(
+      { error: 'Internal Server Error', details: message },
+      { status: 500 }
+    );
   }
 }

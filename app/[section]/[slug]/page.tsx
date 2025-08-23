@@ -1,4 +1,5 @@
 // File: app/[section]/[slug]/page.tsx
+
 import { notFound } from 'next/navigation';
 import Head from 'next/head';
 import { Metadata } from 'next';
@@ -7,19 +8,19 @@ import { Article } from '@/app/lib/types';
 import Breadcrumbs from '@/app/ui/Breadcrumbs/Breadcrumbs';
 import BackButton from '@/app/ui/BackButton.tsx/BackButton';
 import { ContactSection } from '@/app/components/ContactSection/ContactSection';
+import ArticlePage from '@/app/components/DefaultArticle/DefaultArticle';
+import { SimilarArticles } from '@/app/components/SimilarArticles/SimilarArticles';
 
 const SITE_URL = process.env.SITE_URL || 'http://localhost:3000';
 export const revalidate = 60;
 
-// Server-side metadata generation
+type SectionProps = { params: { section: string; slug: string } };
+
 export async function generateMetadata({
   params,
-}: {
-  params: { section: string; slug: string };
-}): Promise<Metadata> {
+}: SectionProps): Promise<Metadata> {
   const { section, slug } = params;
 
-  // If someone lands on /contact, show contact metadata
   if (slug === 'contact') {
     return {
       title: 'Contact the Author',
@@ -28,7 +29,6 @@ export async function generateMetadata({
     };
   }
 
-  // Otherwise load article metadata
   const article: Article = await fetchArticleBySlug(slug);
   if (!article || article.section !== section) {
     return { title: 'Not Found' };
@@ -57,26 +57,17 @@ export async function generateMetadata({
   };
 }
 
-interface Props {
-  params: { section: string; slug: string };
-}
-
-export default async function SectionSlugPage({ params }: Props) {
+export default async function SectionSlugPage({ params }: SectionProps) {
   const { section, slug } = params;
 
-  // If slug is "contact" at any /[section]/contact, render the form
   if (slug === 'contact') {
     return <ContactSection />;
   }
 
-  // Otherwise load and render the article
   const article: Article = await fetchArticleBySlug(slug);
   if (!article || article.section !== section) {
     return notFound();
   }
-
-  const { title, excerpt, images } = article;
-  const imageUrl = images?.[0]?.url;
 
   return (
     <>
@@ -92,21 +83,27 @@ export default async function SectionSlugPage({ params }: Props) {
               label: section.charAt(0).toUpperCase() + section.slice(1),
               href: `/${section}`,
             },
-            { label: title },
+            { label: article.title },
           ]}
         />
 
-        {imageUrl && (
-          <div className="w-full h-80 relative rounded-lg overflow-hidden shadow-lg">
-            <img src={imageUrl} alt={title} className="object-cover w-full h-full" />
-          </div>
-        )}
+        <ArticlePage
+          title={article.title}
+          excerpt={article.excerpt}
+          meta_title={article.meta_title}
+          meta_description={article.meta_description}
+          images={article.images}
+          contentHtml={article.contentHtml}
+          cover={article.cover}
+        />
 
-        {excerpt && <p className="text-lg text-[#ddd]">{excerpt}</p>}
+        {/* вот здесь заменили record на article */}
+        <SimilarArticles
+          slug={article.slug}
+          section={article.section!}  // если у тебя section всё ещё optional в типе — можно добавить "!" 
+        />
 
         <BackButton />
-
-        {/* Here your main article content would go */}
       </div>
     </>
   );

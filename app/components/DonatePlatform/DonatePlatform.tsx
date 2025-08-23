@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Coffee, Globe } from 'lucide-react';
-import { SiBitcoin, SiEthereum, SiTether } from 'react-icons/si';
+import { Globe } from 'lucide-react';
+import { SiBitcoin, SiEthereum, SiTether, SiPaypal } from 'react-icons/si';
 import { motion } from 'framer-motion';
 
 interface DonatePlatform {
@@ -40,32 +40,21 @@ export const DonationSection = () => {
         your way to contribute:
       </p>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* PayPal Button */}
         <motion.a
-          href="https://ko-fi.com/your_page"
+          href="https://paypal.me/vzakone?country.x=RU&locale.x=ru_RU"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center justify-center gap-3 px-8 py-4 bg-[#1a1a1a] text-[#c9ad77] font-semibold rounded-2xl shadow-md hover:shadow-xl transition-shadow"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => window.gtag?.('event', 'donate_click', { method: 'Ko-fi' })}
+          onClick={() => window.gtag?.('event', 'donate_click', { method: 'PayPal' })}
         >
-          <Coffee size={20} />
-          <span>Donate via Ko-fi</span>
+          <SiPaypal size={20} />
+          <span>Donate via PayPal</span>
         </motion.a>
 
-        <motion.a
-          href="https://buymeacoffee.com/your_page"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-center gap-3 px-8 py-4 bg-[#1a1a1a] text-[#c9ad77] font-semibold rounded-2xl shadow-md hover:shadow-xl transition-shadow"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => window.gtag?.('event', 'donate_click', { method: 'Buy Me a Coffee' })}
-        >
-          <Coffee size={20} />
-          <span>Donate via Buy Me a Coffee</span>
-        </motion.a>
-
+        {/* Crypto Dropdown */}
         <div className="relative">
           <motion.button
             type="button"

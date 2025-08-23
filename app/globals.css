@@ -24,29 +24,3 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
-
-.icon-mask {
-  position: relative; /* добавили для псевдо-элемента */
-  display: inline-block;
-  width: 10em; /* размер по высоте в «em» от шрифта */
-  height: 10em; /* будет квадратом */
-  background-color: currentColor; /* раскрашиваем «заливку» маски */
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-  mask-position: center;
-  -webkit-mask-size: contain;
-  mask-size: contain;
-}
-
-/* Шумовой слой поверх всех иконок */
-.icon-mask::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: url('/noise.png'); /* путь к вашей текстуре шума */
-  mix-blend-mode: multiply;
-  opacity: 0.2; /* можно подрегулировать */
-  z-index: 1;
-}

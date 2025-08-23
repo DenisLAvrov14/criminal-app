@@ -23,7 +23,6 @@ export interface MusicArticleProps {
 
 export default function MusicArticle({
   title,
-  excerpt,
   contentHtml,
   videoUrl,
   coverUrl,
@@ -45,9 +44,10 @@ export default function MusicArticle({
   };
 
   const embedUrl = getEmbedUrl(videoUrl);
+  const safeHtml = DOMPurify.sanitize(contentHtml);
 
   return (
-    <article className="container mx-auto py-12 space-y-12">
+    <article className="container mx-auto space-y-12">
       {/* 1. Заголовок всегда первым */}
       <h1 className="text-3xl font-bold">{title}</h1>
 
@@ -67,11 +67,6 @@ export default function MusicArticle({
                   allowFullScreen
                 />
               </div>
-              {excerpt && (
-                <div className="prose prose-lg prose-invert max-w-none mt-6">
-                  <p>{excerpt}</p>
-                </div>
-              )}
             </>
           ) : (
             <div
@@ -147,6 +142,10 @@ export default function MusicArticle({
           </dl>
         </div>
       </div>
+          <div
+        className="prose prose-lg prose-invert max-w-none"
+        dangerouslySetInnerHTML={{ __html: safeHtml }}
+      />
     </article>
   );
 }

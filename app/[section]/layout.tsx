@@ -4,7 +4,6 @@ import { ReactNode } from 'react';
 import { Metadata } from 'next';
 import { Header } from '@/app/components/Header/Header';
 import { Footer } from '@/app/components/Footer/Footer';
-import BackButton from '../ui/BackButton.tsx/BackButton';
 
 export const metadata: Metadata = {
   title: 'All Articles — Russian Prison Culture',

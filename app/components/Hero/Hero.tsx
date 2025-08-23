@@ -1,22 +1,11 @@
 // components/Hero.tsx
 'use client';
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React from 'react';
 import Image from 'next/image';
 import { ArrowDownIcon } from '@heroicons/react/24/outline';
 import { Search } from '../Search/Search';
 
 export const Hero: React.FC = () => {
-  const [query, setQuery] = useState('');
-  const router = useRouter();
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    const trimmed = query.trim();
-    if (trimmed) {
-      router.push(`/search?query=${encodeURIComponent(trimmed)}`);
-    }
-  };
 
   const scrollDown = () => {
     window.scrollTo({ top: window.innerHeight * 0.9, behavior: 'smooth' });

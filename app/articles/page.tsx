@@ -67,7 +67,7 @@ export default async function ArticlesPage() {
           {/* Subtitle */}
           <p className="text-lg text-[#ddd] mb-12">
             Full list of articles across all facets of Russian prison culture. Explore our archives
-            for history, traditions, legends, tattoos, hierarchy, locations, music and more.
+            for history, traditions, legends, tattoos, hierarchy, locations, music and more. 
           </p>
 
           {/* Articles Grid */}
@@ -82,7 +82,7 @@ export default async function ArticlesPage() {
                   alt={article.cover?.alt_text || article.images[0]?.alt_text || article.title}
                   title={article.title}
                   desc={article.excerpt || ''}
-                  href={`/articles/${article.slug}`}
+href={`/${article.section}/${article.slug}`}
                 />
               </div>
             ))}

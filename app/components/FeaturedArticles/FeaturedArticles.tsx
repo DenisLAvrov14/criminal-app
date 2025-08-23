@@ -27,7 +27,7 @@ export const FeaturedArticles = async () => {
             alt={article.cover?.alt_text || article.title}
             title={article.title}
             desc={article.excerpt || ''}
-            href={`/${article.section}/${article.slug}`}
+href={`/${article.section}/${article.slug}`}
           />
         ))}
       </div>

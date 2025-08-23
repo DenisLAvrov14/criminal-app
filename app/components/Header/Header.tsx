@@ -9,8 +9,6 @@ import { XMarkIcon, Bars3Icon } from '@heroicons/react/24/outline';
 
 const NAV_LINKS = [
   { href: '/history', label: 'History' },
-  { href: '/legends', label: 'Legends' },
-  { href: '/traditions', label: 'Traditions' },
   { href: '/tattoos', label: 'Tattoos' },
   { href: '/hierarchy', label: 'Hierarchy' },
   { href: '/locations', label: 'Locations' },
@@ -96,7 +94,7 @@ export function Header() {
   return (
     <header className="fixed inset-x-0 top-0 z-50 bg-black/80 backdrop-blur-md">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center py-4">
-        {/* Логотип — всегда 3em */}
+        {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
           <span
             className="icon-mask"
@@ -112,14 +110,13 @@ export function Header() {
             }}
             aria-hidden="true"
           />
-          {/* Текст чуть растёт с большими экранами */}
           <span className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold uppercase text-[#f5e8c7] whitespace-nowrap">
             Russian Prison Culture
           </span>
         </Link>
 
-        {/* Десктоп-меню: ≥1024px */}
-        <nav className="hidden lg:flex lg:space-x-8 xl:space-x-12">
+        {/* Desktop menu */}
+        <nav className="hidden lg:flex lg:space-x-4 xl:space-x-6">
           {NAV_LINKS.map(({ href, label }) => {
             const active = path === href;
             return (
@@ -127,24 +124,24 @@ export function Header() {
                 key={href}
                 href={href}
                 className={`
-                  relative group px-2 py-1 uppercase text-sm transition-colors duration-200
+                  relative group px-1 py-1 uppercase text-sm transition-colors duration-200
                   ${active ? 'text-[#c9ad77] font-semibold' : 'text-[#f5e8c7] hover:text-[#c9ad77]'}
                 `}
               >
                 {label}
                 <span
                   className={`
-                  absolute bottom-0 left-0 w-full h-0.5 bg-[#c9ad77]
-                  transform origin-center transition-transform duration-300
-                  ${active ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}
-                `}
+                    absolute bottom-0 left-0 w-full h-0.5 bg-[#c9ad77]
+                    transform origin-center transition-transform duration-300
+                    ${active ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}
+                  `}
                 />
               </Link>
             );
           })}
         </nav>
 
-        {/* Бургер: <1024px */}
+        {/* Mobile burger */}
         <button
           className="lg:hidden p-2 text-[#f5e8c7] focus:outline-none"
           onClick={() => setMobileOpen(true)}
@@ -154,7 +151,6 @@ export function Header() {
         </button>
       </div>
 
-      {/* Мобильное меню-оверлей */}
       <MobileMenu open={mobileOpen} onClose={() => setMobileOpen(false)} />
     </header>
   );

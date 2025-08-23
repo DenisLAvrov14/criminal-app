@@ -1,5 +1,7 @@
+// File: app/privacy/page.tsx
+
 import React from 'react';
-import { CloseButton } from '../ui/CloseButton/CloseButton';
+import { CloseButton } from '@/app/ui/CloseButton/CloseButton';
 
 export const metadata = {
   title: 'Privacy Policy — Russian Prison Culture',
@@ -7,13 +9,10 @@ export const metadata = {
 };
 
 export default function PrivacyPolicyPage() {
-  const year = new Date().getFullYear();
-
   return (
     <main className="relative bg-black text-[#f5e8c7] min-h-screen py-8 px-4 md:px-16">
       <div className="max-w-3xl mx-auto space-y-6">
         <h1 className="text-3xl font-bold mb-2 text-center">Privacy Policy</h1>
-        <p className="text-center">Last updated: [Date]</p>
 
         <CloseButton />
         {/* 1. Information We Collect */}
@@ -85,7 +84,7 @@ export default function PrivacyPolicyPage() {
         <section className="space-y-2">
           <h2 className="text-2xl font-semibold">6. Changes to This Policy</h2>
           <p className="text-left">
-            We may update this Privacy Policy from time to time. The "Last updated" date at the top
+            We may update this Privacy Policy from time to time. The &quot;Last updated&quot; date at the top
             will reflect amendments.
           </p>
         </section>

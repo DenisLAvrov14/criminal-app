@@ -3,7 +3,6 @@
 import React from 'react';
 import Image from 'next/image';
 import DOMPurify from 'isomorphic-dompurify';
-import { article } from 'framer-motion/client';
 
 export interface LegendArticleProps {
   title: string;

@@ -2,68 +2,65 @@
 
 import React from 'react';
 import Image from 'next/image';
+import DOMPurify from 'isomorphic-dompurify';
+import { File } from '@/app/lib/types';
 
-export interface ArticlePageProps {
+export interface DefaultArticleProps {
   title: string;
   excerpt?: string;
   meta_title?: string;
   meta_description?: string;
-  images?: {
-    id: number;
-    url: string;
-    alt_text?: string;
-    description?: string;
-  }[];
+  /** HTML-контент из Directus */
+  contentHtml: string;
+  /** Обложка статьи (single-file) */
+  cover: File | null;
+  /** Дополнительные изображения */
+  images: File[];
 }
 
-export default function ArticlePage({
+export default function DefaultArticle({
   title,
-  excerpt,
-  meta_title,
-  meta_description,
-  images = [],
-}: ArticlePageProps) {
+  contentHtml,
+  images,
+}: DefaultArticleProps) {
+  const safeHtml = DOMPurify.sanitize(contentHtml);
+
   return (
-    <article className="container mx-auto py-16 space-y-8">
-      {/* Заголовок */}
+<article className="container mx-auto space-y-8 text-[#c9ad77]">
+        {/* Заголовок */}
       <h1 className="text-4xl font-bold">{title}</h1>
 
-      {/* Описание */}
-      {excerpt && <p className="text-lg text-gray-300">{excerpt}</p>}
-
-      {/* Meta-поля */}
-      <div className="space-y-1 text-sm text-gray-400">
-        {meta_title && (
-          <div>
-            <strong>Meta Title:</strong> {meta_title}
-          </div>
-        )}
-        {meta_description && (
-          <div>
-            <strong>Meta Description:</strong> {meta_description}
-          </div>
-        )}
-      </div>
-
-      {/* Картинки */}
+      {/* Изображения: увеличенный контейнер, показываем полностью */}
       {images.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {images.map(img => (
-            <figure key={img.id} className="relative w-full h-64">
+          {images.map((img) => (
+            <figure
+              key={img.id}
+              className="relative w-full"
+              style={{ paddingTop: '75%' }}   // 75% от ширины для более высокого контейнера
+            >
               <Image
                 src={img.url}
                 alt={img.alt_text || title}
                 fill
-                className="object-cover rounded-lg shadow"
+                className="object-contain rounded-lg shadow"
                 priority={false}
               />
               {img.description && (
-                <figcaption className="mt-2 text-sm text-gray-500">{img.description}</figcaption>
+                <figcaption className="mt-2 text-sm text-gray-500">
+                  {img.description}
+                </figcaption>
               )}
             </figure>
           ))}
         </div>
       )}
+
+      {/* Основной HTML-контент */}
+<div
+     className="prose prose-lg prose-invert max-w-none text-[#c9ad77]"
+        dangerouslySetInnerHTML={{ __html: safeHtml }}
+      />
     </article>
   );
 }

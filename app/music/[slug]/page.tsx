@@ -6,6 +6,7 @@ import { Metadata } from 'next';
 import MusicArticle from '@/app/components/MusicArticle/MusicArticle';
 import BackButton from '@/app/ui/BackButton.tsx/BackButton';
 import Breadcrumbs from '@/app/ui/Breadcrumbs/Breadcrumbs';
+import { SimilarArticles } from '@/app/components/SimilarArticles/SimilarArticles';
 
 // из .env
 const DIRECTUS_URL = process.env.DIRECTUS_URL!;
@@ -33,6 +34,7 @@ interface MusicRecord {
   nationality?: string;
   status?: string;
   images?: ImageRelation[];
+  section: string;
 }
 
 // ISR: обновлять каждую минуту
@@ -91,6 +93,7 @@ async function fetchMusicBySlug(slug: string): Promise<MusicRecord | null> {
       'nationality',
       'status',
       'images.directus_files_id',
+      'section',
     ].join(','),
   });
   const base = DIRECTUS_URL.replace(/\/$/, '');
@@ -166,6 +169,12 @@ export default async function MusicDetailPage({ params }: Props) {
           residence={record.residence}
           nationality={record.nationality}
           status={record.status}
+        />
+
+      {/* Похожие статьи */}
+        <SimilarArticles
+          slug={record.slug}
+          section={record.section!}  
         />
         {/* Назад */}
         <BackButton />

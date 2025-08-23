@@ -1,14 +1,17 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 
+// Объявляем глобальный gtag без использования any
 declare global {
   interface Window {
-    gtag?: (...args: any[]) => void;
+    gtag?: (...args: unknown[]) => void;
   }
 }
 
-interface FormData {
+// Переименованный тип, чтобы не конфликтовать с браузерным FormData
+interface ContactFormData {
   name: string;
   email: string;
   message: string;
@@ -22,12 +25,11 @@ export const ContactSection: React.FC = () => {
     setStatus('sending');
 
     const form = e.currentTarget;
-    // Собираем данные через FormData API
-    const formData = new FormData(form);
-    const data: FormData = {
-      name: String(formData.get('name') ?? ''),
-      email: String(formData.get('email') ?? ''),
-      message: String(formData.get('message') ?? ''),
+    const formDataApi = new FormData(form);
+    const data: ContactFormData = {
+      name: String(formDataApi.get('name') ?? ''),
+      email: String(formDataApi.get('email') ?? ''),
+      message: String(formDataApi.get('message') ?? ''),
     };
 
     console.log('[ContactSection] Отправка данных:', data);
@@ -96,7 +98,7 @@ export const ContactSection: React.FC = () => {
           disabled={status === 'sending'}
           className="flex items-center justify-center gap-2 w-full px-8 py-4 bg-[#c9ad77] text-black font-semibold rounded-2xl shadow-lg hover:shadow-2xl transition-shadow disabled:opacity-50"
         >
-          <img src="/zuk.svg" alt="Bug icon" className="w-5 h-6" />
+          <Image src="/zuk.svg" alt="Bug icon" width={20} height={24} />
           <span>{status === 'sending' ? 'Sending…' : 'Send Message'}</span>
         </button>
       </form>
