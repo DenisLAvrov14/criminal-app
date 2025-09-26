@@ -6,7 +6,6 @@ import { ArrowDownIcon } from '@heroicons/react/24/outline';
 import { Search } from '../Search/Search';
 
 export const Hero: React.FC = () => {
-
   const scrollDown = () => {
     window.scrollTo({ top: window.innerHeight * 0.9, behavior: 'smooth' });
   };

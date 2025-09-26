@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Disallow: /directus/
+Sitemap: https://vzakone.com/sitemap.xml

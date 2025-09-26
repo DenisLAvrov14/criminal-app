@@ -4,15 +4,12 @@ export async function GET() {
   const baseUrl = 'https://vzakone.com';
 
   // 1. Забираем все slug и section из Directus
-  const res = await fetch(
-    `${process.env.DIRECTUS_URL}/items/articles?fields=slug,section`,
-    {
-      headers: {
-        Authorization: `Bearer ${process.env.DIRECTUS_TOKEN}`,
-      },
-      next: { revalidate: 3600 },
-    }
-  );
+  const res = await fetch(`${process.env.DIRECTUS_URL}/items/articles?fields=slug,section`, {
+    headers: {
+      Authorization: `Bearer ${process.env.DIRECTUS_TOKEN}`,
+    },
+    next: { revalidate: 3600 },
+  });
 
   const json = await res.json();
   const articles: Article[] = json.data;

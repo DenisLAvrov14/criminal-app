@@ -40,9 +40,8 @@ export default async function LegendsPage({ searchParams }: LegendsPageProps) {
           Legends
         </h1>
         <p className="text-lg mb-12 max-w-2xl text-[#ddd]">
-          Dive into curated stories on{' '}
-          <span className="font-semibold text-[#c9ad77]">Legends</span> of Russian
-          prison culture.
+          Dive into curated stories on <span className="font-semibold text-[#c9ad77]">Legends</span>{' '}
+          of Russian prison culture.
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">

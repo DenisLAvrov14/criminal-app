@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import Head from 'next/head';
 import Link from 'next/link';
 import { Metadata } from 'next';
-import { fetchFromDirectus, transformArticle } from '@/app/lib/api';   // см. ниже
+import { fetchFromDirectus, transformArticle } from '@/app/lib/api'; // см. ниже
 import { ARTICLE_FIELDS } from '@/app/lib/api';
 import { Article } from '@/app/lib/types';
 import Breadcrumbs from '../ui/Breadcrumbs/Breadcrumbs';
@@ -31,14 +31,16 @@ export async function generateMetadata({
     title,
     description: `Dive into curated articles on ${title}…`,
     alternates: { canonical: pageUrl },
-    openGraph: { title, description: `Dive into…`, url: pageUrl, siteName: 'Russian Prison Culture' },
+    openGraph: {
+      title,
+      description: `Dive into…`,
+      url: pageUrl,
+      siteName: 'Russian Prison Culture',
+    },
   };
 }
 
-export default async function SectionPage({
-  params,
-  searchParams,
-}: SectionPageProps) {
+export default async function SectionPage({ params, searchParams }: SectionPageProps) {
   const { section } = params;
   const pageNum = parseInt(searchParams.page ?? '1', 10);
   if (isNaN(pageNum) || pageNum < 1) return notFound();
@@ -48,11 +50,11 @@ export default async function SectionPage({
 
   // 1) Запросим 6 статей нужного раздела с offset
   const listParams = new URLSearchParams({
-    fields:    ARTICLE_FIELDS,
+    fields: ARTICLE_FIELDS,
     'filter[section][_eq]': section,
-    limit:     perPage.toString(),
-    offset:    offset.toString(),
-    sort:      '-id',            // самые новые сверху
+    limit: perPage.toString(),
+    offset: offset.toString(),
+    sort: '-id', // самые новые сверху
   });
   const raws = await fetchFromDirectus(listParams);
   const pageItems: Article[] = raws.map(transformArticle);
@@ -91,11 +93,8 @@ export default async function SectionPage({
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {pageItems.map((article) => (
-              <div
-                key={article.id}
-                className="transform hover:scale-105 transition-transform"
-              >
+            {pageItems.map(article => (
+              <div key={article.id} className="transform hover:scale-105 transition-transform">
                 <ArticleCard
                   img={article.cover?.url || article.images?.[0]?.url || '/images/placeholder.jpg'}
                   alt={article.cover?.alt_text || article.images?.[0]?.alt_text || article.title}

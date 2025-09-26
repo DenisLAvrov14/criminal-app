@@ -6,8 +6,8 @@ import { ArticleCard } from '../ArticleCard/ArticleCard';
 import Link from 'next/link';
 
 export const FeaturedArticles = async () => {
-  const articles: Article[] = await fetchAllArticles();
-  const featured = articles.slice(0, 9);
+  // тянем сразу последние 9 статей
+  const articles: Article[] = await fetchAllArticles(9);
 
   return (
     <section className="container mx-auto px-6 pb-16">
@@ -19,7 +19,7 @@ export const FeaturedArticles = async () => {
       </h2>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {featured.map(article => (
+        {articles.map(article => (
           <ArticleCard
             key={article.id}
             cover={article.cover?.url}
@@ -27,7 +27,7 @@ export const FeaturedArticles = async () => {
             alt={article.cover?.alt_text || article.title}
             title={article.title}
             desc={article.excerpt || ''}
-href={`/${article.section}/${article.slug}`}
+            href={`/${article.section}/${article.slug}`}
           />
         ))}
       </div>

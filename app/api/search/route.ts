@@ -53,9 +53,6 @@ export async function GET(request: Request): Promise<NextResponse> {
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
     console.error('Search API unexpected error:', message);
-    return NextResponse.json(
-      { error: 'Internal Server Error', details: message },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal Server Error', details: message }, { status: 500 });
   }
 }

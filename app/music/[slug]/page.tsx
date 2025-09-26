@@ -171,11 +171,8 @@ export default async function MusicDetailPage({ params }: Props) {
           status={record.status}
         />
 
-      {/* Похожие статьи */}
-        <SimilarArticles
-          slug={record.slug}
-          section={record.section!}  
-        />
+        {/* Похожие статьи */}
+        <SimilarArticles slug={record.slug} section={record.section!} />
         {/* Назад */}
         <BackButton />
       </div>

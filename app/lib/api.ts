@@ -157,8 +157,13 @@ export async function fetchRelatedArticles(
   return raws.map(transformArticle);
 }
 
-export async function fetchAllArticles(): Promise<Article[]> {
-  const params = new URLSearchParams({ fields: ARTICLE_FIELDS });
+export async function fetchAllArticles(limit: number = 20): Promise<Article[]> {
+  const params = new URLSearchParams({
+    fields: ARTICLE_FIELDS,
+    sort: '-id', // 👈 новые сначала
+    limit: limit.toString(), // 👈 ограничение (по умолчанию 20)
+  });
+
   const raws = await fetchFromDirectus(params);
   return raws.map(transformArticle);
 }
@@ -184,10 +189,7 @@ export async function fetchArticlesWithPagination(
   };
 }
 
-export async function getSimilarArticles(
-  slug: string,
-  section: string
-): Promise<Article[]> {
+export async function getSimilarArticles(slug: string, section: string): Promise<Article[]> {
   // убираем возможный конец «/»
   const base = DIRECTUS_URL.replace(/\/$/, '');
   const url = [
@@ -196,12 +198,12 @@ export async function getSimilarArticles(
     `filter[section][_eq]=${encodeURIComponent(section)}`,
     `limit=3`,
     `sort=-id`,
-  ].join('&').replace(`${base}/items/articles&`, `${base}/items/articles?`);
+  ]
+    .join('&')
+    .replace(`${base}/items/articles&`, `${base}/items/articles?`);
 
   const res = await fetch(url, {
-    headers: DIRECTUS_TOKEN
-      ? { Authorization: `Bearer ${DIRECTUS_TOKEN}` }
-      : {},
+    headers: DIRECTUS_TOKEN ? { Authorization: `Bearer ${DIRECTUS_TOKEN}` } : {},
     next: { revalidate: 60 }, // ISR каждые 60 секунд
   });
 

@@ -16,9 +16,7 @@ export const revalidate = 60;
 
 type SectionProps = { params: { section: string; slug: string } };
 
-export async function generateMetadata({
-  params,
-}: SectionProps): Promise<Metadata> {
+export async function generateMetadata({ params }: SectionProps): Promise<Metadata> {
   const { section, slug } = params;
 
   if (slug === 'contact') {
@@ -100,7 +98,7 @@ export default async function SectionSlugPage({ params }: SectionProps) {
         {/* вот здесь заменили record на article */}
         <SimilarArticles
           slug={article.slug}
-          section={article.section!}  // если у тебя section всё ещё optional в типе — можно добавить "!" 
+          section={article.section!} // если у тебя section всё ещё optional в типе — можно добавить "!"
         />
 
         <BackButton />

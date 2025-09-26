@@ -14,9 +14,7 @@ export const SimilarArticles = async ({ slug, section }: Props) => {
   const articles: Article[] = await fetchAllArticles();
 
   // 2) Фильтруем по section и убираем ту же статью
-  const slice = articles
-    .filter(a => a.section === section && a.slug !== slug)
-    .slice(0, 3);
+  const slice = articles.filter(a => a.section === section && a.slug !== slug).slice(0, 3);
 
   if (slice.length === 0) return null;
 

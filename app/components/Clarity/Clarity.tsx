@@ -5,7 +5,11 @@ import { useEffect } from 'react';
 export default function Clarity() {
   useEffect(() => {
     (function (c: any, l: any, a: any, r: any, i: any) {
-      c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments); };
+      c[a] =
+        c[a] ||
+        function () {
+          (c[a].q = c[a].q || []).push(arguments);
+        };
       const t = l.createElement(r);
       t.async = true;
       t.src = 'https://www.clarity.ms/tag/' + i;
