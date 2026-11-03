@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { ExploreMore } from './components/ExploreMore/ExploreMore';
 import { FeaturedArticles } from './components/FeaturedArticles/FeaturedArticles';
 import { Footer } from './components/Footer/Footer';
@@ -19,3 +21,4 @@ export default function Page() {
     </div>
   );
 }
+

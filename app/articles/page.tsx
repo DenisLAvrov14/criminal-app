@@ -1,5 +1,7 @@
 // File: app/articles/page.tsx
 
+export const dynamic = 'force-dynamic';
+
 import Head from 'next/head';
 import { Metadata } from 'next';
 import Link from 'next/link';

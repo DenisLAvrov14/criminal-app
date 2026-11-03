@@ -40,9 +40,11 @@ export function Search() {
     return () => ctl.abort();
   }, [query, page]);
 
-  const onSelect = (item: Article) => {
-    router.push(`/${item.section}/${item.slug}`);
-  };
+  const onSelect = (item: Article | null) => {
+  if (!item) return;
+
+  router.push(`/${item.section}/${item.slug}`);
+ };
 
   return (
     <div className="relative z-20 w-full px-4 lg:w-[25%] mx-auto">

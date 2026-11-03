@@ -46,7 +46,8 @@ export async function fetchFromDirectus(params: URLSearchParams): Promise<Direct
   console.log('→ Directus URL:', url.toString());
   console.log('→ Authorization header:', getHeaders()['Authorization']);
 
-  const res = await fetch(url.toString(), { headers: getHeaders() });
+  const res = await fetch(url.toString(), { headers: getHeaders(), cache: 'no-store' });
+
   if (!res.ok) {
     const text = await res.text();
     console.error('📛 Directus error:', res.status, res.statusText, text);
