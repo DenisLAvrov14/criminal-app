@@ -189,7 +189,7 @@ export function Header() {
                     aria-hidden="true"
                     className="absolute left-1/2 top-2.5 h-3 w-3 -translate-x-1/2 rotate-45 border-l border-t border-[#5a4228] bg-[#120c07]"
                   />
-                  <div className="w-44 rounded-lg border border-[#5a4228] bg-[#120c07] py-1.5 shadow-xl shadow-black/60">
+                  <div className="w-max rounded-lg border border-[#5a4228] bg-[#120c07] py-1.5 shadow-xl shadow-black/60">
                     {children.map(child => (
                       <Link
                         key={child.href}
