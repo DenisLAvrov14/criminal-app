@@ -5,18 +5,20 @@ import React from 'react';
 import Link from 'next/link';
 
 import TraditionsIcon from '/public/hram.svg';
-import HistoryIcon from '/public/zvezda.svg';
+import GangsIcon from '/public/zvezda.svg';
 import LegendsIcon from '/public/pika.svg';
+import SerialKillersIcon from '/public/finka.svg';
 
 const QUICK_LINKS = [
   { href: '/traditions', Icon: TraditionsIcon, label: 'Traditions' },
-  { href: '/history', Icon: HistoryIcon, label: 'History' },
+  { href: '/gangs', Icon: GangsIcon, label: 'Gangs' },
   { href: '/legends', Icon: LegendsIcon, label: 'Legends' },
+  { href: '/serial-killers', Icon: SerialKillersIcon, label: 'Serial Killers' },
 ];
 
 export const QuickLinks: React.FC = () => (
   <section className="container mx-auto px-6 py-12">
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
       {QUICK_LINKS.map(({ href, Icon, label }) => (
         <Link
           key={label}

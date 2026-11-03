@@ -5,17 +5,34 @@ import { Fragment, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Dialog, Transition } from '@headlessui/react';
-import { XMarkIcon, Bars3Icon } from '@heroicons/react/24/outline';
+import { XMarkIcon, Bars3Icon, ChevronDownIcon } from '@heroicons/react/24/outline';
 
-const NAV_LINKS = [
+interface NavLink {
+  href: string;
+  label: string;
+  children?: { href: string; label: string }[];
+}
+
+// Адреса совпадают со значениями section в Directus; группировка живёт только здесь
+const NAV_LINKS: NavLink[] = [
+  {
+    href: '/traditions',
+    label: 'Traditions',
+    children: [
+      { href: '/history', label: 'History' },
+      { href: '/traditions', label: 'Traditions' },
+      { href: '/hierarchy', label: 'Hierarchy' },
+      { href: '/locations', label: 'Locations' },
+    ],
+  },
   { href: '/tattoos', label: 'Tattoos' },
-  { href: '/history', label: 'History' },
-  { href: '/traditions', label: 'Traditions' },
-  { href: '/hierarchy', label: 'Hierarchy' },
-  { href: '/locations', label: 'Locations' },
+  { href: '/gangs', label: 'Gangs' },
   { href: '/legends', label: 'Legends' },
+  { href: '/serial-killers', label: 'Serial Killers' },
   { href: '/music', label: 'Music' },
 ];
+
+const isActive = (path: string, href: string) => path === href || path.startsWith(`${href}/`);
 
 function MobileMenu({ open, onClose }: { open: boolean; onClose(): void }) {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -70,16 +87,34 @@ function MobileMenu({ open, onClose }: { open: boolean; onClose(): void }) {
                 </button>
               </div>
               <nav className="mt-4 flex flex-col space-y-4">
-                {NAV_LINKS.map(({ href, label }) => (
-                  <Link
-                    key={href}
-                    href={href}
-                    onClick={onClose}
-                    className="text-2xl uppercase text-white hover:text-[#c9ad77] transition-colors duration-200"
-                  >
-                    {label}
-                  </Link>
-                ))}
+                {NAV_LINKS.map(({ href, label, children }) =>
+                  children ? (
+                    <div key={label}>
+                      <span className="text-2xl uppercase text-[#c9ad77]">{label}</span>
+                      <div className="mt-2 ml-4 flex flex-col space-y-2 border-l border-[#333] pl-4">
+                        {children.map(child => (
+                          <Link
+                            key={child.href}
+                            href={child.href}
+                            onClick={onClose}
+                            className="text-lg uppercase text-white hover:text-[#c9ad77] transition-colors duration-200"
+                          >
+                            {child.label}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <Link
+                      key={href}
+                      href={href}
+                      onClick={onClose}
+                      className="text-2xl uppercase text-white hover:text-[#c9ad77] transition-colors duration-200"
+                    >
+                      {label}
+                    </Link>
+                  ),
+                )}
               </nav>
             </Dialog.Panel>
           </Transition.Child>
@@ -119,18 +154,21 @@ export function Header() {
 
         {/* Desktop menu */}
         <nav className="hidden lg:flex lg:space-x-4 xl:space-x-6">
-          {NAV_LINKS.map(({ href, label }) => {
-            const active = path === href || path.startsWith(`${href}/`);
-            return (
+          {NAV_LINKS.map(({ href, label, children }) => {
+            const active = children
+              ? children.some(child => isActive(path, child.href))
+              : isActive(path, href);
+            const link = (
               <Link
                 key={href}
                 href={href}
                 className={`
-                  relative group px-1 py-1 uppercase text-sm transition-colors duration-200
+                  relative group inline-flex items-center px-1 py-1 uppercase text-sm whitespace-nowrap transition-colors duration-200
                   ${active ? 'text-[#c9ad77] font-semibold' : 'text-[#f5e8c7] hover:text-[#c9ad77]'}
                 `}
               >
                 {label}
+                {children && <ChevronDownIcon className="ml-1 inline h-3 w-3" aria-hidden="true" />}
                 <span
                   className={`
                     absolute bottom-0 left-0 w-full h-0.5 bg-[#c9ad77]
@@ -139,6 +177,30 @@ export function Header() {
                   `}
                 />
               </Link>
+            );
+            if (!children) return link;
+            return (
+              <div key={href} className="group/menu relative">
+                {link}
+                {/* Выпадающее меню: hover мышью или фокус с клавиатуры */}
+                <div className="invisible absolute left-1/2 top-full z-50 -translate-x-1/2 pt-3 group-hover/menu:visible group-focus-within/menu:visible">
+                  <div className="flex min-w-44 flex-col rounded-lg border border-[#333] bg-black/95 py-2 shadow-xl">
+                    {children.map(child => (
+                      <Link
+                        key={child.href}
+                        href={child.href}
+                        className={`px-4 py-2 text-sm uppercase transition-colors duration-200 ${
+                          isActive(path, child.href)
+                            ? 'text-[#c9ad77]'
+                            : 'text-[#f5e8c7] hover:bg-[#c9ad77]/10 hover:text-[#c9ad77]'
+                        }`}
+                      >
+                        {child.label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
             );
           })}
         </nav>

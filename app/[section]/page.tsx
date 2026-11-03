@@ -9,6 +9,8 @@ import { Article } from '@/app/lib/types';
 import Breadcrumbs from '../ui/Breadcrumbs/Breadcrumbs';
 import BackButton from '../ui/BackButton.tsx/BackButton';
 import { ArticleCard } from '../components/ArticleCard/ArticleCard';
+import { FooterSubscribe } from '../components/FooterSubscribe/FooterSubscribe';
+import { SECTIONS, sectionTitle } from '@/app/lib/sections';
 
 const SITE_URL = process.env.SITE_URL || 'http://localhost:3000';
 export const revalidate = 60;
@@ -24,15 +26,16 @@ export async function generateMetadata({
   params: Promise<{ section: string }>;
 }): Promise<Metadata> {
   const { section } = await params;
-  const title = section[0].toUpperCase() + section.slice(1);
+  const title = sectionTitle(section);
+  const description = SECTIONS[section]?.intro ?? `Articles on ${title}`;
   const pageUrl = `${SITE_URL}/${section}`;
   return {
     title,
-    description: `Dive into curated articles on ${title}…`,
+    description,
     alternates: { canonical: pageUrl },
     openGraph: {
       title,
-      description: `Dive into…`,
+      description,
       url: pageUrl,
       siteName: 'Russian Criminal Culture',
     },
@@ -58,7 +61,11 @@ export default async function SectionPage({ params, searchParams }: SectionPageP
   });
   const raws = await fetchFromDirectus(listParams);
   const pageItems: Article[] = raws.map(transformArticle);
-  if (pageItems.length === 0) return notFound();
+  if (pageItems.length === 0) {
+    // Раздел из справочника, где ещё нет статей, — показываем заглушку, остальное 404
+    if (pageNum === 1 && SECTIONS[section]) return <ComingSoon section={section} />;
+    return notFound();
+  }
 
   // 2) Отдельно запросим общее число статей этого раздела (для пагинации)
   const countParams = new URLSearchParams({
@@ -68,7 +75,7 @@ export default async function SectionPage({ params, searchParams }: SectionPageP
   const allRaw = await fetchFromDirectus(countParams);
   const total = allRaw.length;
 
-  const title = section[0].toUpperCase() + section.slice(1);
+  const title = sectionTitle(section);
   const baseUrl = `/${section}`;
 
   // canonical задаётся в generateMetadata
@@ -81,10 +88,7 @@ export default async function SectionPage({ params, searchParams }: SectionPageP
           <h1 className="text-4xl lg:text-5xl font-bold uppercase mb-6 border-b-2 border-[#c9ad77] pb-4">
             {title}
           </h1>
-          <p className="text-lg mb-12 max-w-2xl text-[#ddd]">
-            Dive into curated articles on{' '}
-            <span className="font-semibold text-[#c9ad77]">{title}</span> …
-          </p>
+          <p className="text-lg mb-12 max-w-2xl text-[#ddd]">{SECTIONS[section]?.intro}</p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {pageItems.map(article => (
@@ -124,5 +128,27 @@ export default async function SectionPage({ params, searchParams }: SectionPageP
         </div>
       </div>
     </>
+  );
+}
+
+function ComingSoon({ section }: { section: string }) {
+  const { title, intro } = SECTIONS[section];
+  return (
+    <div>
+      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: title }]} />
+      <div className="container mx-auto">
+        <h1 className="text-4xl lg:text-5xl font-bold uppercase mb-6 border-b-2 border-[#c9ad77] pb-4">
+          {title}
+        </h1>
+        <p className="text-lg mb-10 max-w-2xl text-[#ddd]">{intro}</p>
+        <div className="mb-8 max-w-md rounded-lg border border-[#333] bg-[#111] p-6">
+          <p className="mb-4 text-[#f5e8c7]">
+            The first articles are being written. Subscribe to get them as soon as they are out.
+          </p>
+          <FooterSubscribe />
+        </div>
+        <BackButton />
+      </div>
+    </div>
   );
 }
