@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { ArrowUpIcon } from '@heroicons/react/24/outline';
 import { FooterSubscribe } from '../FooterSubscribe/FooterSubscribe';
+import { openConsentSettings } from '@/app/lib/consent';
 
 export const Footer: React.FC = () => {
   const year = new Date().getFullYear();
@@ -28,7 +29,7 @@ export const Footer: React.FC = () => {
         <div className="text-xs md:text-sm">&copy; {year} Russian Criminal Culture</div>
 
         {/* 2. Правовые ссылки */}
-        <nav className="flex justify-center space-x-4 text-xs md:text-sm">
+        <nav className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs md:text-sm">
           <Link href="/privacy" className="hover:text-white transition">
             Privacy Policy
           </Link>
@@ -38,6 +39,13 @@ export const Footer: React.FC = () => {
           <Link href="/cookies" className="hover:text-white transition">
             Cookie Policy
           </Link>
+          <button
+            type="button"
+            onClick={openConsentSettings}
+            className="hover:text-white transition"
+          >
+            Cookie Settings
+          </button>
         </nav>
 
         {/* 4. Back to top */}

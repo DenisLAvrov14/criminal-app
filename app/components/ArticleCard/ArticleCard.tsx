@@ -29,14 +29,23 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
 
   const content = (
     <article className="group flex h-full flex-col overflow-hidden rounded-lg border border-[#3a2a1a] bg-[#1c120b] transition hover:border-[#c9ad77] hover:shadow-lg">
-      <div className="relative aspect-[3/2] w-full shrink-0 overflow-hidden bg-[#2a1910]">
+      {/* Обложки бывают квадратные и широкие: показываем целиком, фон — размытая копия */}
+      <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden bg-[#2a1910]">
+        <Image
+          src={src}
+          alt=""
+          aria-hidden
+          fill
+          sizes={CARD_SIZES}
+          className="scale-110 object-cover opacity-60 blur-xl"
+        />
         <Image
           src={src}
           alt={alt}
           fill
           sizes={CARD_SIZES}
           priority={priority}
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
+          className="object-contain transition-transform duration-300 group-hover:scale-105"
         />
       </div>
 
