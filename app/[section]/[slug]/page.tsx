@@ -4,7 +4,6 @@ import { notFound } from 'next/navigation';
 import Head from 'next/head';
 import { Metadata } from 'next';
 import { fetchArticleBySlug } from '@/app/lib/api';
-import { Article } from '@/app/lib/types';
 import Breadcrumbs from '@/app/ui/Breadcrumbs/Breadcrumbs';
 import BackButton from '@/app/ui/BackButton.tsx/BackButton';
 import { ContactSection } from '@/app/components/ContactSection/ContactSection';
@@ -27,7 +26,7 @@ export async function generateMetadata({ params }: SectionProps): Promise<Metada
     };
   }
 
-  const article: Article = await fetchArticleBySlug(slug);
+  const article = await fetchArticleBySlug(slug);
   if (!article || article.section !== section) {
     return { title: 'Not Found' };
   }
@@ -62,7 +61,7 @@ export default async function SectionSlugPage({ params }: SectionProps) {
     return <ContactSection />;
   }
 
-  const article: Article = await fetchArticleBySlug(slug);
+  const article = await fetchArticleBySlug(slug);
   if (!article || article.section !== section) {
     return notFound();
   }

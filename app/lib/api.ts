@@ -131,15 +131,15 @@ export function transformArticle(item: DirectusArticle): Article {
   };
 }
 
-export async function fetchArticleBySlug(slug: string): Promise<Article> {
+/** Возвращает null, если статьи нет — страница отдаст 404, а не 500 */
+export async function fetchArticleBySlug(slug: string): Promise<Article | null> {
   const params = new URLSearchParams({
     fields: ARTICLE_FIELDS,
     'filter[slug][_eq]': slug,
     limit: '1',
   });
   const [raw] = await fetchFromDirectus(params);
-  if (!raw) throw new Error(`Article not found with slug: ${slug}`);
-  return transformArticle(raw);
+  return raw ? transformArticle(raw) : null;
 }
 
 export async function fetchRelatedArticles(
