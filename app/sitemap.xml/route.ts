@@ -1,12 +1,14 @@
 import { Article } from '@/app/lib/types';
 import { SECTIONS } from '@/app/lib/sections';
+import { withPublishedFilter } from '@/app/lib/api';
 
 export async function GET() {
   const baseUrl = 'https://vzakone.com';
 
   try {
     // 1. Забираем slug и section из Directus
-    const res = await fetch(`${process.env.DIRECTUS_URL}/items/articles?fields=slug,section&limit=-1`, {
+    const params = withPublishedFilter(new URLSearchParams({ fields: 'slug,section', limit: '-1' }));
+    const res = await fetch(`${process.env.DIRECTUS_URL}/items/articles?${params}`, {
       headers: {
         Authorization: `Bearer ${process.env.DIRECTUS_TOKEN}`,
       },

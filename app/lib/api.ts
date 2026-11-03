@@ -33,6 +33,16 @@ export const ARTICLE_FIELDS = [
   'status',
 ].join(',');
 
+/**
+ * Отложенные статьи: показываем только те, у которых publish_date пустая или уже наступила.
+ * $NOW Directus подставляет сам. Дата нигде на сайте не выводится.
+ */
+export function withPublishedFilter(params: URLSearchParams): URLSearchParams {
+  params.set('filter[_or][0][publish_date][_null]', 'true');
+  params.set('filter[_or][1][publish_date][_lte]', '$NOW');
+  return params;
+}
+
 // Заголовки с индексной сигнатурой для корректной типизации
 const getHeaders = (): Record<string, string> => ({
   Authorization: `Bearer ${DIRECTUS_TOKEN}`,
@@ -41,7 +51,7 @@ const getHeaders = (): Record<string, string> => ({
 /** Выполняет запрос и отдает массив сырых DirectusArticle */
 export async function fetchFromDirectus(params: URLSearchParams): Promise<DirectusArticle[]> {
   const url = new URL(`${DIRECTUS_URL}/items/articles`);
-  params.forEach((v, k) => url.searchParams.set(k, v));
+  withPublishedFilter(params).forEach((v, k) => url.searchParams.set(k, v));
 
   const res = await fetch(url.toString(), { headers: getHeaders(), cache: 'no-store' });
 
@@ -196,15 +206,15 @@ export async function fetchArticlesWithPagination(
 export async function getSimilarArticles(slug: string, section: string): Promise<Article[]> {
   // убираем возможный конец «/»
   const base = DIRECTUS_URL.replace(/\/$/, '');
-  const url = [
-    `${base}/items/articles`,
-    `filter[slug][_neq]=${encodeURIComponent(slug)}`,
-    `filter[section][_eq]=${encodeURIComponent(section)}`,
-    `limit=3`,
-    `sort=-id`,
-  ]
-    .join('&')
-    .replace(`${base}/items/articles&`, `${base}/items/articles?`);
+  const params = withPublishedFilter(
+    new URLSearchParams({
+      'filter[slug][_neq]': slug,
+      'filter[section][_eq]': section,
+      limit: '3',
+      sort: '-id',
+    })
+  );
+  const url = `${base}/items/articles?${params}`;
 
   const res = await fetch(url, {
     headers: DIRECTUS_TOKEN ? { Authorization: `Bearer ${DIRECTUS_TOKEN}` } : {},

@@ -3,6 +3,7 @@ import { Metadata } from 'next';
 import LegendArticle from '@/app/components/LegendArticle/LegendArticle';
 import BackButton from '@/app/ui/BackButton.tsx/BackButton';
 import Breadcrumbs from '@/app/ui/Breadcrumbs/Breadcrumbs';
+import { withPublishedFilter } from '@/app/lib/api';
 
 const DIRECTUS_URL = process.env.DIRECTUS_URL!;
 const DIRECTUS_TOKEN = process.env.DIRECTUS_TOKEN!;
@@ -41,7 +42,7 @@ export async function generateStaticParams() {
     fields: 'slug',
   });
 
-  const res = await fetch(`${DIRECTUS_URL.replace(/\/$/, '')}/items/articles?${params}`, {
+  const res = await fetch(`${DIRECTUS_URL.replace(/\/$/, '')}/items/articles?${withPublishedFilter(params)}`, {
     headers: HEADERS,
   });
 
@@ -74,7 +75,7 @@ async function fetchLegendBySlug(slug: string): Promise<LegendRecord | null> {
     ].join(','),
   });
 
-  const res = await fetch(`${DIRECTUS_URL.replace(/\/$/, '')}/items/articles?${params}`, {
+  const res = await fetch(`${DIRECTUS_URL.replace(/\/$/, '')}/items/articles?${withPublishedFilter(params)}`, {
     headers: HEADERS,
   });
 

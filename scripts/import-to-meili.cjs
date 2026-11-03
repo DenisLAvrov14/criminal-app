@@ -7,7 +7,14 @@ const fetch = require('node-fetch');
 const { DIRECTUS_URL, MEILI_HOST, MEILI_MASTER_KEY, MEILI_INDEX = 'articles' } = process.env;
 
 async function fetchArticles() {
-  const url = `${DIRECTUS_URL}/items/articles?fields=id,title,excerpt,content,slug,section&limit=-1`;
+  // Отложенные статьи (publish_date в будущем) в поиск не попадают
+  const params = new URLSearchParams({
+    fields: 'id,title,excerpt,content,slug,section',
+    limit: '-1',
+    'filter[_or][0][publish_date][_null]': 'true',
+    'filter[_or][1][publish_date][_lte]': '$NOW',
+  });
+  const url = `${DIRECTUS_URL}/items/articles?${params}`;
   const res = await fetch(url);
   if (!res.ok) {
     throw new Error(`Directus API error ${res.status}`);
@@ -42,8 +49,17 @@ async function main() {
   }));
 
   const index = client.index(MEILI_INDEX);
-  const update = await client.index(MEILI_INDEX).addDocuments(docs);
+  const update = await index.addDocuments(docs);
   console.log(`🚀 Индексация запущена, taskUid = ${update.taskUid}`);
+
+  // 4) Убираем из поиска то, чего больше нет среди опубликованных (удалённые или перенесённые статьи)
+  const keep = new Set(docs.map(d => d.id));
+  const { results } = await index.getDocuments({ fields: ['id'], limit: 10000 });
+  const stale = results.map(d => d.id).filter(id => !keep.has(id));
+  if (stale.length) {
+    await index.deleteDocuments(stale);
+    console.log(`🧹 Удалено из поиска: ${stale.length}`);
+  }
 }
 
 main().catch(err => {

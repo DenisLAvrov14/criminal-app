@@ -6,6 +6,7 @@ import MusicArticle from '@/app/components/MusicArticle/MusicArticle';
 import BackButton from '@/app/ui/BackButton.tsx/BackButton';
 import Breadcrumbs from '@/app/ui/Breadcrumbs/Breadcrumbs';
 import { SimilarArticles } from '@/app/components/SimilarArticles/SimilarArticles';
+import { withPublishedFilter } from '@/app/lib/api';
 
 // из .env
 const DIRECTUS_URL = process.env.DIRECTUS_URL!;
@@ -97,7 +98,7 @@ async function fetchMusicBySlug(slug: string): Promise<MusicRecord | null> {
     ].join(','),
   });
   const base = DIRECTUS_URL.replace(/\/$/, '');
-  const url = `${base}/items/articles?${params.toString()}`;
+  const url = `${base}/items/articles?${withPublishedFilter(params)}`;
 
   const res = await fetch(url, { headers: HEADERS });
   if (!res.ok) {
