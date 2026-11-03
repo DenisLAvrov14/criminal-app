@@ -3,8 +3,16 @@ import { NextResponse } from 'next/server';
 export const runtime = 'nodejs';
 
 const MEILI_HOST = process.env.MEILI_HOST;
-const MEILI_KEY = process.env.MEILI_MASTER_KEY;
+// Для поиска нужен только search-ключ; master key оставляем для скрипта индексации
+const MEILI_KEY = process.env.MEILI_SEARCH_KEY ?? process.env.MEILI_MASTER_KEY;
 const INDEX = process.env.MEILI_INDEX || 'articles';
+
+if (!process.env.MEILI_SEARCH_KEY) {
+  console.warn('[Search API] MEILI_SEARCH_KEY не задан — используется master key');
+}
+
+const MAX_QUERY_LENGTH = 200;
+const MAX_LIMIT = 20;
 
 type MeiliHit = {
   id: number;
@@ -17,34 +25,31 @@ type MeiliHit = {
 export async function GET(request: Request): Promise<NextResponse> {
   try {
     if (!MEILI_HOST || !MEILI_KEY) {
-      return NextResponse.json(
-        {
-          error: 'Search env is not configured',
-          details: {
-            hasMeiliHost: Boolean(MEILI_HOST),
-            hasMeiliKey: Boolean(MEILI_KEY),
-            index: INDEX,
-          },
-        },
-        { status: 500 }
-      );
+      console.error('[Search API] Search env is not configured', {
+        hasMeiliHost: Boolean(MEILI_HOST),
+        hasMeiliKey: Boolean(MEILI_KEY),
+      });
+      return NextResponse.json({ error: 'Search is not configured' }, { status: 500 });
     }
 
     const { searchParams } = new URL(request.url);
-    const q = searchParams.get('q') ?? '';
-    const limit = Number(searchParams.get('limit') ?? '5');
+    const q = (searchParams.get('q') ?? '').slice(0, MAX_QUERY_LENGTH);
+    const rawLimit = Number(searchParams.get('limit') ?? '5');
+    const limit = Number.isFinite(rawLimit)
+      ? Math.min(Math.max(Math.trunc(rawLimit), 1), MAX_LIMIT)
+      : 5;
 
-    const meiliUrl = `${MEILI_HOST}/indexes/${INDEX}/search`;
-
-    console.log('[Search API] Meili URL:', meiliUrl);
-
-    const meiliRes = await fetch(meiliUrl, {
+    const meiliRes = await fetch(`${MEILI_HOST}/indexes/${INDEX}/search`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${MEILI_KEY}`,
       },
-      body: JSON.stringify({ q, limit }),
+      body: JSON.stringify({
+        q,
+        limit,
+        attributesToRetrieve: ['id', 'title', 'excerpt', 'slug', 'section'],
+      }),
       cache: 'no-store',
     });
 
@@ -52,10 +57,7 @@ export async function GET(request: Request): Promise<NextResponse> {
 
     if (!meiliRes.ok) {
       console.error('[Search API] Meili error:', meiliRes.status, text);
-      return NextResponse.json(
-        { error: 'Search service error', details: text },
-        { status: meiliRes.status }
-      );
+      return NextResponse.json({ error: 'Search service error' }, { status: 502 });
     }
 
     let payload: { hits: MeiliHit[] };
@@ -64,13 +66,7 @@ export async function GET(request: Request): Promise<NextResponse> {
       payload = JSON.parse(text);
     } catch {
       console.error('[Search API] Meili returned non-JSON:', text.slice(0, 300));
-      return NextResponse.json(
-        {
-          error: 'Search service returned non-JSON',
-          details: text.slice(0, 300),
-        },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Search service error' }, { status: 502 });
     }
 
     const results = payload.hits.map(hit => ({
@@ -83,8 +79,7 @@ export async function GET(request: Request): Promise<NextResponse> {
 
     return NextResponse.json(results);
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : String(err);
-    console.error('[Search API] Unexpected error:', message);
-    return NextResponse.json({ error: 'Internal Server Error', details: message }, { status: 500 });
+    console.error('[Search API] Unexpected error:', err);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
