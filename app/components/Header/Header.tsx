@@ -10,7 +10,7 @@ import { XMarkIcon, Bars3Icon, ChevronDownIcon } from '@heroicons/react/24/outli
 interface NavLink {
   href: string;
   label: string;
-  children?: { href: string; label: string; desc: string }[];
+  children?: { href: string; label: string }[];
 }
 
 // Адреса совпадают со значениями section в Directus; группировка живёт только здесь
@@ -19,10 +19,10 @@ const NAV_LINKS: NavLink[] = [
     href: '/traditions',
     label: 'Traditions',
     children: [
-      { href: '/history', label: 'History', desc: 'Gulag, Solovki and the gang wars' },
-      { href: '/traditions', label: 'Traditions', desc: 'The code, slang and sayings' },
-      { href: '/hierarchy', label: 'Hierarchy', desc: 'Thieves-in-law and prison castes' },
-      { href: '/locations', label: 'Locations', desc: "Russia's most notorious prisons" },
+      { href: '/history', label: 'History' },
+      { href: '/traditions', label: 'Traditions' },
+      { href: '/hierarchy', label: 'Hierarchy' },
+      { href: '/locations', label: 'Locations' },
     ],
   },
   { href: '/tattoos', label: 'Tattoos' },
@@ -189,28 +189,18 @@ export function Header() {
                     aria-hidden="true"
                     className="absolute left-1/2 top-2.5 h-3 w-3 -translate-x-1/2 rotate-45 border-l border-t border-[#5a4228] bg-[#120c07]"
                   />
-                  <div className="w-72 rounded-xl border border-[#5a4228] bg-[#120c07] p-2 shadow-2xl shadow-black/60">
-                    {children.map(child => {
-                      const childActive = isActive(path, child.href);
-                      return (
-                        <Link
-                          key={child.href}
-                          href={child.href}
-                          className={`group/item flex flex-col rounded-lg border-l-2 px-4 py-2.5 transition-colors duration-200 hover:bg-[#c9ad77]/10 ${
-                            childActive ? 'border-[#c9ad77] bg-[#c9ad77]/5' : 'border-transparent hover:border-[#c9ad77]'
-                          }`}
-                        >
-                          <span
-                            className={`text-sm font-semibold uppercase tracking-wider transition-colors ${
-                              childActive ? 'text-[#c9ad77]' : 'text-[#f5e8c7] group-hover/item:text-[#c9ad77]'
-                            }`}
-                          >
-                            {child.label}
-                          </span>
-                          <span className="mt-0.5 text-xs text-[#a89a7d]">{child.desc}</span>
-                        </Link>
-                      );
-                    })}
+                  <div className="w-44 rounded-lg border border-[#5a4228] bg-[#120c07] py-1.5 shadow-xl shadow-black/60">
+                    {children.map(child => (
+                      <Link
+                        key={child.href}
+                        href={child.href}
+                        className={`block px-5 py-2 text-center text-sm uppercase tracking-wider transition-colors duration-200 hover:bg-[#c9ad77]/10 hover:text-[#c9ad77] ${
+                          isActive(path, child.href) ? 'text-[#c9ad77]' : 'text-[#f5e8c7]'
+                        }`}
+                      >
+                        {child.label}
+                      </Link>
+                    ))}
                   </div>
                 </div>
               </div>
