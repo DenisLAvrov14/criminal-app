@@ -8,7 +8,7 @@ const nextConfig = {
       },
     ],
     // Next 16 разрешает только перечисленные значения quality (Hero использует 100)
-    qualities: [50, 75, 100],
+    qualities: [75, 100],
   },
 
   // SVG импортируются как React-компоненты (QuickLinks и др.)
