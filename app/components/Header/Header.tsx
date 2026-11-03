@@ -10,7 +10,7 @@ import { XMarkIcon, Bars3Icon, ChevronDownIcon } from '@heroicons/react/24/outli
 interface NavLink {
   href: string;
   label: string;
-  children?: { href: string; label: string }[];
+  children?: { href: string; label: string; desc: string }[];
 }
 
 // Адреса совпадают со значениями section в Directus; группировка живёт только здесь
@@ -19,10 +19,10 @@ const NAV_LINKS: NavLink[] = [
     href: '/traditions',
     label: 'Traditions',
     children: [
-      { href: '/history', label: 'History' },
-      { href: '/traditions', label: 'Traditions' },
-      { href: '/hierarchy', label: 'Hierarchy' },
-      { href: '/locations', label: 'Locations' },
+      { href: '/history', label: 'History', desc: 'Gulag, Solovki and the gang wars' },
+      { href: '/traditions', label: 'Traditions', desc: 'The code, slang and sayings' },
+      { href: '/hierarchy', label: 'Hierarchy', desc: 'Thieves-in-law and prison castes' },
+      { href: '/locations', label: 'Locations', desc: "Russia's most notorious prisons" },
     ],
   },
   { href: '/tattoos', label: 'Tattoos' },
@@ -183,21 +183,34 @@ export function Header() {
               <div key={href} className="group/menu relative">
                 {link}
                 {/* Выпадающее меню: hover мышью или фокус с клавиатуры */}
-                <div className="invisible absolute left-1/2 top-full z-50 -translate-x-1/2 pt-3 group-hover/menu:visible group-focus-within/menu:visible">
-                  <div className="flex min-w-44 flex-col rounded-lg border border-[#333] bg-black/95 py-2 shadow-xl">
-                    {children.map(child => (
-                      <Link
-                        key={child.href}
-                        href={child.href}
-                        className={`px-4 py-2 text-sm uppercase transition-colors duration-200 ${
-                          isActive(path, child.href)
-                            ? 'text-[#c9ad77]'
-                            : 'text-[#f5e8c7] hover:bg-[#c9ad77]/10 hover:text-[#c9ad77]'
-                        }`}
-                      >
-                        {child.label}
-                      </Link>
-                    ))}
+                <div className="invisible absolute left-1/2 top-full z-50 -translate-x-1/2 pt-4 group-hover/menu:visible group-focus-within/menu:visible">
+                  {/* Уголок, указывающий на пункт меню */}
+                  <span
+                    aria-hidden="true"
+                    className="absolute left-1/2 top-2.5 h-3 w-3 -translate-x-1/2 rotate-45 border-l border-t border-[#5a4228] bg-[#120c07]"
+                  />
+                  <div className="w-72 rounded-xl border border-[#5a4228] bg-[#120c07] p-2 shadow-2xl shadow-black/60">
+                    {children.map(child => {
+                      const childActive = isActive(path, child.href);
+                      return (
+                        <Link
+                          key={child.href}
+                          href={child.href}
+                          className={`group/item flex flex-col rounded-lg border-l-2 px-4 py-2.5 transition-colors duration-200 hover:bg-[#c9ad77]/10 ${
+                            childActive ? 'border-[#c9ad77] bg-[#c9ad77]/5' : 'border-transparent hover:border-[#c9ad77]'
+                          }`}
+                        >
+                          <span
+                            className={`text-sm font-semibold uppercase tracking-wider transition-colors ${
+                              childActive ? 'text-[#c9ad77]' : 'text-[#f5e8c7] group-hover/item:text-[#c9ad77]'
+                            }`}
+                          >
+                            {child.label}
+                          </span>
+                          <span className="mt-0.5 text-xs text-[#a89a7d]">{child.desc}</span>
+                        </Link>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
