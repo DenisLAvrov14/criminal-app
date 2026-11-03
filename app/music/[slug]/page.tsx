@@ -1,7 +1,6 @@
 // File: app/music/[slug]/page.tsx
 
 import { notFound } from 'next/navigation';
-import Head from 'next/head';
 import { Metadata } from 'next';
 import MusicArticle from '@/app/components/MusicArticle/MusicArticle';
 import BackButton from '@/app/ui/BackButton.tsx/BackButton';
@@ -44,12 +43,13 @@ export const revalidate = 60;
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const record = await fetchMusicBySlug(params.slug);
+  const { slug } = await params;
+  const record = await fetchMusicBySlug(slug);
   if (!record) return { title: 'Not found' };
 
-  const pageUrl = `${SITE_URL}/music/${params.slug}`;
+  const pageUrl = `${SITE_URL}/music/${slug}`;
   const ogImage = record.images?.[0]?.directus_files_id
     ? `${DIRECTUS_URL.replace(/\/$/, '')}/assets/${record.images[0]!.directus_files_id}`
     : undefined;
@@ -98,7 +98,6 @@ async function fetchMusicBySlug(slug: string): Promise<MusicRecord | null> {
   });
   const base = DIRECTUS_URL.replace(/\/$/, '');
   const url = `${base}/items/articles?${params.toString()}`;
-  console.log('→ Directus URL:', url);
 
   const res = await fetch(url, { headers: HEADERS });
   if (!res.ok) {
@@ -110,38 +109,35 @@ async function fetchMusicBySlug(slug: string): Promise<MusicRecord | null> {
 }
 
 interface Props {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export default async function MusicDetailPage({ params }: Props) {
-  const record = await fetchMusicBySlug(params.slug);
+  const { slug } = await params;
+  const record = await fetchMusicBySlug(slug);
   if (!record) return notFound();
 
   // Строим coverUrl
   const fileId = record.images?.[0]?.directus_files_id;
   const coverUrl = fileId ? `${DIRECTUS_URL.replace(/\/$/, '')}/assets/${fileId}` : undefined;
 
-  const pageUrl = `${SITE_URL}/music/${params.slug}`;
-
+  // canonical задаётся в generateMetadata
   return (
     <>
-      <Head>
-        <link rel="canonical" href={pageUrl} />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              '@context': 'https://schema.org',
-              '@type': 'BreadcrumbList',
-              itemListElement: [
-                { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL + '/' },
-                { '@type': 'ListItem', position: 2, name: 'Music', item: SITE_URL + '/music' },
-                { '@type': 'ListItem', position: 3, name: record.title },
-              ],
-            }),
-          }}
-        />
-      </Head>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL + '/' },
+              { '@type': 'ListItem', position: 2, name: 'Music', item: SITE_URL + '/music' },
+              { '@type': 'ListItem', position: 3, name: record.title },
+            ],
+          }),
+        }}
+      />
 
       {/* --- Обёртка для всего контента страницы --- */}
       <div className="page-wrapper container mx-auto px-6 py-12">

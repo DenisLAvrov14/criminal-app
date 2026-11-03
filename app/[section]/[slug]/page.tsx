@@ -1,7 +1,6 @@
 // File: app/[section]/[slug]/page.tsx
 
 import { notFound } from 'next/navigation';
-import Head from 'next/head';
 import { Metadata } from 'next';
 import { fetchArticleBySlug } from '@/app/lib/api';
 import Breadcrumbs from '@/app/ui/Breadcrumbs/Breadcrumbs';
@@ -13,10 +12,10 @@ import { SimilarArticles } from '@/app/components/SimilarArticles/SimilarArticle
 const SITE_URL = process.env.SITE_URL || 'http://localhost:3000';
 export const revalidate = 60;
 
-type SectionProps = { params: { section: string; slug: string } };
+type SectionProps = { params: Promise<{ section: string; slug: string }> };
 
 export async function generateMetadata({ params }: SectionProps): Promise<Metadata> {
-  const { section, slug } = params;
+  const { section, slug } = await params;
 
   if (slug === 'contact') {
     return {
@@ -55,7 +54,7 @@ export async function generateMetadata({ params }: SectionProps): Promise<Metada
 }
 
 export default async function SectionSlugPage({ params }: SectionProps) {
-  const { section, slug } = params;
+  const { section, slug } = await params;
 
   if (slug === 'contact') {
     return <ContactSection />;
@@ -66,12 +65,9 @@ export default async function SectionSlugPage({ params }: SectionProps) {
     return notFound();
   }
 
+  // canonical задаётся в generateMetadata
   return (
     <>
-      <Head>
-        <link rel="canonical" href={`${SITE_URL}/${section}/${slug}`} />
-      </Head>
-
       <div className="page-wrapper container mx-auto px-6 py-12 space-y-8">
         <Breadcrumbs
           items={[

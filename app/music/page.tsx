@@ -11,12 +11,12 @@ const PER_PAGE = 6;
 export const revalidate = 60; // ISR: сбрасывать кэш раз в минуту
 
 interface MusicPageProps {
-  searchParams: { page?: string };
+  searchParams: Promise<{ page?: string }>;
 }
 
 export default async function MusicPage({ searchParams }: MusicPageProps) {
   // 1. Парсим номер страницы из query (по умолчанию 1)
-  const page = parseInt(searchParams.page || '1', 10);
+  const page = parseInt((await searchParams).page || '1', 10);
   if (isNaN(page) || page < 1) return notFound();
 
   // 2. Загружаем все статьи раздела "music"

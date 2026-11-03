@@ -7,17 +7,19 @@ const nextConfig = {
         pathname: '/assets/**',
       },
     ],
+    // Next 16 разрешает только перечисленные значения quality (Hero использует 100)
+    qualities: [75, 100],
   },
 
-  webpack(config) {
-    config.module.rules.push({
-      test: /\.svg$/i,
-      issuer: /\.[jt]sx?$/,
-      use: ['@svgr/webpack'],
-    });
-    return config;
+  // SVG импортируются как React-компоненты (QuickLinks и др.)
+  turbopack: {
+    rules: {
+      '*.svg': {
+        loaders: ['@svgr/webpack'],
+        as: '*.js',
+      },
+    },
   },
 };
 
 export default nextConfig;
-

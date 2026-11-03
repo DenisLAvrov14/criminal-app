@@ -2,7 +2,6 @@
 
 export const dynamic = 'force-dynamic';
 
-import Head from 'next/head';
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { fetchAllArticles } from '@/app/lib/api';
@@ -28,34 +27,29 @@ export default async function ArticlesPage() {
 
   return (
     <>
-      <Head>
-        <link
-          rel="canonical"
-          href={`${process.env.SITE_URL || 'http://localhost:3000'}/articles`}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              '@context': 'https://schema.org',
-              '@type': 'BreadcrumbList',
-              itemListElement: [
-                {
-                  '@type': 'ListItem',
-                  position: 1,
-                  name: 'Home',
-                  item: `${process.env.SITE_URL || 'http://localhost:3000'}/`,
-                },
-                {
-                  '@type': 'ListItem',
-                  position: 2,
-                  name: 'Articles',
-                },
-              ],
-            }),
-          }}
-        />
-      </Head>
+      {/* canonical задаётся в metadata */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              {
+                '@type': 'ListItem',
+                position: 1,
+                name: 'Home',
+                item: `${process.env.SITE_URL || 'http://localhost:3000'}/`,
+              },
+              {
+                '@type': 'ListItem',
+                position: 2,
+                name: 'Articles',
+              },
+            ],
+          }),
+        }}
+      />
 
       <div className="page-wrapper bg-black text-[#f5e8c7] py-16 px-6">
         {/* Хлебные крошки */}

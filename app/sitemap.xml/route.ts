@@ -5,15 +5,12 @@ export async function GET() {
 
   try {
     // 1. Забираем slug и section из Directus
-    const res = await fetch(
-      `${process.env.DIRECTUS_URL}/items/articles?fields=slug,section`,
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.DIRECTUS_TOKEN}`,
-        },
-        next: { revalidate: 3600 },
-      }
-    );
+    const res = await fetch(`${process.env.DIRECTUS_URL}/items/articles?fields=slug,section`, {
+      headers: {
+        Authorization: `Bearer ${process.env.DIRECTUS_TOKEN}`,
+      },
+      next: { revalidate: 3600 },
+    });
 
     const json = await res.json();
 
@@ -57,14 +54,10 @@ ${urls
     console.error('Sitemap error:', err);
 
     // Возвращаем пустой sitemap, но НЕ ломаем сборку
-    return new Response(
-      `<?xml version="1.0" encoding="UTF-8"?><urlset></urlset>`,
-      {
-        headers: {
-          'Content-Type': 'application/xml',
-        },
-      }
-    );
+    return new Response(`<?xml version="1.0" encoding="UTF-8"?><urlset></urlset>`, {
+      headers: {
+        'Content-Type': 'application/xml',
+      },
+    });
   }
 }
-

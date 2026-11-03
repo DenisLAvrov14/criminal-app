@@ -92,4 +92,3 @@ export default function DefaultArticle({ title, contentHtml, images }: DefaultAr
     </article>
   );
 }
-

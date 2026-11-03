@@ -1,7 +1,6 @@
 // File: app/[section]/page.tsx
 
 import { notFound } from 'next/navigation';
-import Head from 'next/head';
 import Link from 'next/link';
 import { Metadata } from 'next';
 import { fetchFromDirectus, transformArticle } from '@/app/lib/api'; // см. ниже
@@ -15,16 +14,16 @@ const SITE_URL = process.env.SITE_URL || 'http://localhost:3000';
 export const revalidate = 60;
 
 interface SectionPageProps {
-  params: { section: string };
-  searchParams: { page?: string };
+  params: Promise<{ section: string }>;
+  searchParams: Promise<{ page?: string }>;
 }
 
 export async function generateMetadata({
   params,
 }: {
-  params: { section: string };
+  params: Promise<{ section: string }>;
 }): Promise<Metadata> {
-  const section = params.section;
+  const { section } = await params;
   const title = section[0].toUpperCase() + section.slice(1);
   const pageUrl = `${SITE_URL}/${section}`;
   return {
@@ -41,8 +40,9 @@ export async function generateMetadata({
 }
 
 export default async function SectionPage({ params, searchParams }: SectionPageProps) {
-  const { section } = params;
-  const pageNum = parseInt(searchParams.page ?? '1', 10);
+  const { section } = await params;
+  const { page } = await searchParams;
+  const pageNum = parseInt(page ?? '1', 10);
   if (isNaN(pageNum) || pageNum < 1) return notFound();
 
   const perPage = 6;
@@ -71,15 +71,9 @@ export default async function SectionPage({ params, searchParams }: SectionPageP
   const title = section[0].toUpperCase() + section.slice(1);
   const baseUrl = `/${section}`;
 
+  // canonical задаётся в generateMetadata
   return (
     <>
-      <Head>
-        <link
-          rel="canonical"
-          href={`${SITE_URL}/${section}${pageNum > 1 ? `?page=${pageNum}` : ''}`}
-        />
-      </Head>
-
       <div className="page-wrapper bg-black text-[#f5e8c7] py-16 px-6">
         <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: title }]} />
 

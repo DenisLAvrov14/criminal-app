@@ -8,9 +8,7 @@ const DIRECTUS_URL = process.env.DIRECTUS_URL!;
 const DIRECTUS_TOKEN = process.env.DIRECTUS_TOKEN!;
 const SITE_URL = process.env.SITE_URL || 'http://localhost:3000';
 
-const HEADERS: HeadersInit = DIRECTUS_TOKEN
-  ? { Authorization: `Bearer ${DIRECTUS_TOKEN}` }
-  : {};
+const HEADERS: HeadersInit = DIRECTUS_TOKEN ? { Authorization: `Bearer ${DIRECTUS_TOKEN}` } : {};
 
 // Пивоты images → directus_files
 interface ImageRelation {
@@ -43,10 +41,9 @@ export async function generateStaticParams() {
     fields: 'slug',
   });
 
-  const res = await fetch(
-    `${DIRECTUS_URL.replace(/\/$/, '')}/items/articles?${params}`,
-    { headers: HEADERS }
-  );
+  const res = await fetch(`${DIRECTUS_URL.replace(/\/$/, '')}/items/articles?${params}`, {
+    headers: HEADERS,
+  });
 
   if (!res.ok) return [];
 
@@ -77,10 +74,9 @@ async function fetchLegendBySlug(slug: string): Promise<LegendRecord | null> {
     ].join(','),
   });
 
-  const res = await fetch(
-    `${DIRECTUS_URL.replace(/\/$/, '')}/items/articles?${params}`,
-    { headers: HEADERS }
-  );
+  const res = await fetch(`${DIRECTUS_URL.replace(/\/$/, '')}/items/articles?${params}`, {
+    headers: HEADERS,
+  });
 
   if (!res.ok) return null;
 
@@ -92,12 +88,13 @@ async function fetchLegendBySlug(slug: string): Promise<LegendRecord | null> {
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const record = await fetchLegendBySlug(params.slug);
+  const { slug } = await params;
+  const record = await fetchLegendBySlug(slug);
   if (!record) return { title: 'Not found' };
 
-  const pageUrl = `${SITE_URL}/legends/${params.slug}`;
+  const pageUrl = `${SITE_URL}/legends/${slug}`;
 
   const ogImage = record.images?.[0]?.directus_files_id
     ? `${DIRECTUS_URL.replace(/\/$/, '')}/assets/${record.images[0].directus_files_id}`
@@ -124,11 +121,12 @@ export async function generateMetadata({
 }
 
 interface Props {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export default async function LegendDetailPage({ params }: Props) {
-  const record = await fetchLegendBySlug(params.slug);
+  const { slug } = await params;
+  const record = await fetchLegendBySlug(slug);
   if (!record) return notFound();
 
   const imageIds = record.images?.map(i => i.directus_files_id) ?? [];

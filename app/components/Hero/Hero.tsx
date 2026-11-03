@@ -39,11 +39,11 @@ export const Hero: React.FC = () => {
       {/* Scroll hint */}
       <button
         onClick={scrollDown}
-        className="hidden sm:block absolute bottom-[-4px] left-1/2 transform -translate-x-1/2 text-[#f5e8c7] hover:text-white focus:outline-none"        aria-label="Scroll down"
+        className="hidden sm:block absolute bottom-[-4px] left-1/2 transform -translate-x-1/2 text-[#f5e8c7] hover:text-white focus:outline-none"
+        aria-label="Scroll down"
       >
         <ArrowDownIcon className="w-8 h-8 animate-bounce" />
       </button>
     </section>
   );
 };
-

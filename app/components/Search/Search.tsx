@@ -41,10 +41,10 @@ export function Search() {
   }, [query, page]);
 
   const onSelect = (item: Article | null) => {
-  if (!item) return;
+    if (!item) return;
 
-  router.push(`/${item.section}/${item.slug}`);
- };
+    router.push(`/${item.section}/${item.slug}`);
+  };
 
   return (
     <div className="relative z-20 w-full px-4 lg:w-[25%] mx-auto">
