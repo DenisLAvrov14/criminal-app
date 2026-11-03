@@ -11,17 +11,31 @@ export const Hero: React.FC = () => {
   };
 
   return (
-    <section className="relative min-h-[70vh] sm:min-h-[95vh]">
-      {/* White Swan Image */}
+    <section className="relative min-h-[70vh] overflow-hidden sm:min-h-[95vh]">
+      {/* White Swan Image: исходник 1536×1024 — показываем целиком, без растягивания;
+          поля по бокам на широких экранах заполняет размытая копия */}
       <Image
         src="/whiteswan.png"
-        alt="White swan sketch"
+        alt=""
+        aria-hidden
         fill
-        sizes="100vw"
-        className="object-cover"
-        quality={100}
-        priority
+        sizes="50vw"
+        quality={50}
+        className="scale-110 object-cover opacity-50 blur-2xl"
       />
+      <div className="absolute inset-0 flex justify-center">
+        <div className="relative aspect-[3/2] h-full max-w-full md:[mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
+          <Image
+            src="/whiteswan.png"
+            alt="White swan sketch"
+            fill
+            sizes="(min-aspect-ratio: 3/2) 150vh, 100vw"
+            className="object-cover"
+            quality={100}
+            priority
+          />
+        </div>
+      </div>
 
       {/* Dark overlay with search */}
       <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center text-center px-4 space-y-6">
