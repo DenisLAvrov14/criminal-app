@@ -12,7 +12,7 @@ import Breadcrumbs from '../ui/Breadcrumbs/Breadcrumbs';
 export const metadata: Metadata = {
   title: 'All Articles — Russian Criminal Culture',
   description:
-    'Full list of articles across all facets of Russian criminal culture. Explore our archives for history, traditions, legends, tattoos, hierarchy, locations, music and more.',
+    'Full list of articles across all facets of Russian criminal culture. Explore our archives for history, traditions, gangs, legends, serial killers, tattoos, hierarchy, locations, music and more.',
   alternates: { canonical: `${process.env.SITE_URL || 'http://localhost:3000'}/articles` },
   openGraph: {
     title: 'All Articles',
@@ -63,8 +63,8 @@ export default async function ArticlesPage() {
           {/* Subtitle */}
           <p className="text-lg text-[#ddd] mb-12">
             Full list of articles across all facets of Russian criminal culture. Explore our
-            archives for history, traditions, legends, tattoos, hierarchy, locations, music and
-            more.
+            archives for history, traditions, gangs, legends, serial killers, tattoos, hierarchy,
+            locations, music and more.
           </p>
 
           {/* Articles Grid */}

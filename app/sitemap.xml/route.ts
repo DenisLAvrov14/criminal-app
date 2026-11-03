@@ -1,11 +1,12 @@
 import { Article } from '@/app/lib/types';
+import { SECTIONS } from '@/app/lib/sections';
 
 export async function GET() {
   const baseUrl = 'https://vzakone.com';
 
   try {
     // 1. Забираем slug и section из Directus
-    const res = await fetch(`${process.env.DIRECTUS_URL}/items/articles?fields=slug,section`, {
+    const res = await fetch(`${process.env.DIRECTUS_URL}/items/articles?fields=slug,section&limit=-1`, {
       headers: {
         Authorization: `Bearer ${process.env.DIRECTUS_TOKEN}`,
       },
@@ -23,6 +24,11 @@ export async function GET() {
     // 3. Формируем URL и приоритеты
     const urls = [
       { loc: baseUrl, priority: 1.0 },
+
+      // Страницы разделов — только те, где уже есть статьи
+      ...Object.keys(SECTIONS)
+        .filter(section => clean.some(a => a.section === section))
+        .map(section => ({ loc: `${baseUrl}/${section}`, priority: 0.9 })),
 
       ...clean.map(({ section, slug }) => ({
         loc: `${baseUrl}/${section}/${slug}`,
