@@ -17,7 +17,7 @@ export const Hero: React.FC = () => {
         src="/whiteswan.png"
         alt="White swan sketch"
         fill
-        className="object-contain"
+        className="object-cover sm:object-contain"
         quality={100}
         priority
       />
