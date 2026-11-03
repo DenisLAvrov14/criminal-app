@@ -6,6 +6,8 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_NAME = 100;
 const MAX_EMAIL = 254;
 const MAX_MESSAGE = 5000;
+// Человек не успевает заполнить форму быстрее, боты отправляют её сразу
+const MIN_FILL_MS = 3000;
 
 // Экранируем пользовательский ввод, чтобы его нельзя было внедрить как HTML в письмо
 function escapeHtml(value: string): string {
@@ -25,7 +27,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: 'Invalid request' }, { status: 400 });
   }
 
-  const { name, email, message } = (body ?? {}) as Record<string, unknown>;
+  const { name, email, message, website, elapsed } = (body ?? {}) as Record<string, unknown>;
+
+  // Ловушки для ботов: заполненное скрытое поле или слишком быстрая отправка.
+  // Отвечаем «ок», чтобы бот не понял, что его отсеяли
+  if (
+    (typeof website === 'string' && website.trim()) ||
+    (typeof elapsed === 'number' && elapsed < MIN_FILL_MS)
+  ) {
+    return NextResponse.json({ ok: true });
+  }
+
   if (
     typeof name !== 'string' ||
     typeof email !== 'string' ||

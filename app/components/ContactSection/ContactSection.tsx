@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Image from 'next/image';
 
 // Объявляем глобальный gtag без использования any
@@ -15,10 +15,16 @@ interface ContactFormData {
   name: string;
   email: string;
   message: string;
+  website: string; // honeypot
+  elapsed: number; // сколько мс форма была открыта
 }
 
 export const ContactSection: React.FC = () => {
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+  const openedAt = useRef<number | null>(null);
+  const markOpened = () => {
+    openedAt.current ??= Date.now();
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -30,9 +36,9 @@ export const ContactSection: React.FC = () => {
       name: String(formDataApi.get('name') ?? ''),
       email: String(formDataApi.get('email') ?? ''),
       message: String(formDataApi.get('message') ?? ''),
+      website: String(formDataApi.get('website') ?? ''),
+      elapsed: openedAt.current === null ? 0 : Date.now() - openedAt.current,
     };
-
-    console.log('[ContactSection] Отправка данных:', data);
 
     try {
       const res = await fetch('/api/contact', {
@@ -40,12 +46,11 @@ export const ContactSection: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-      console.log('[ContactSection] Статус ответа:', res.status);
       const json = await res.json();
-      console.log('[ContactSection] Тело ответа:', json);
       if (json.ok) {
         setStatus('success');
         form.reset();
+        openedAt.current = null;
       } else {
         console.error('[ContactSection] Ответ с ошибкой:', json.error);
         setStatus('error');
@@ -61,7 +66,16 @@ export const ContactSection: React.FC = () => {
       <h2 className="text-4xl font-bold text-[#c9ad77] mb-6">Contact the Author</h2>
       <p className="mb-8 text-lg leading-relaxed">Questions? Feedback? Drop me a line below.</p>
 
-      <form className="space-y-6 max-w-xl" onSubmit={handleSubmit}>
+      <form className="space-y-6 max-w-xl" onSubmit={handleSubmit} onFocus={markOpened}>
+        {/* Невидимое поле: люди его не видят, боты заполняют */}
+        <input
+          type="text"
+          name="website"
+          tabIndex={-1}
+          autoComplete="off"
+          aria-hidden="true"
+          className="absolute -left-[9999px] h-0 w-0 opacity-0"
+        />
         {[
           { label: 'Name', name: 'name', type: 'text', placeholder: 'Your name' },
           { label: 'Email', name: 'email', type: 'email', placeholder: 'you@example.com' },
