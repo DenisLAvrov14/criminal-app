@@ -31,7 +31,7 @@ export const QuickLinks: React.FC = () => (
             role="link"
             aria-label={label}
           >
-            <Icon className="w-[4em] h-[4em] mb-4 text-[#f5e8c7] fill-current transition-transform group-hover:scale-110" />
+            <Icon className="w-[4em] h-[4em] mb-2 sm:mb-3 text-[#f5e8c7] fill-current transition-transform group-hover:scale-110" />
             <span className="whitespace-nowrap text-base sm:text-lg font-semibold text-[#f5e8c7] group-hover:text-white transition-colors">
               {label}
             </span>

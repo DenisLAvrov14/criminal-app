@@ -33,7 +33,9 @@ export const Hero: React.FC = () => {
         </p>
 
         {/* Search Form */}
-        <Search />
+        <div className="w-full max-sm:pt-6">
+          <Search />
+        </div>
       </div>
 
       {/* Scroll hint */}
