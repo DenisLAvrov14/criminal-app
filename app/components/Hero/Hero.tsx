@@ -17,7 +17,8 @@ export const Hero: React.FC = () => {
         src="/whiteswan.png"
         alt="White swan sketch"
         fill
-        className="object-contain"
+        sizes="100vw"
+        className="object-cover"
         quality={100}
         priority
       />
@@ -25,11 +26,11 @@ export const Hero: React.FC = () => {
       {/* Dark overlay with search */}
       <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center text-center px-4 space-y-6">
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold uppercase text-[#f5e8c7]">
-          Russian Prison Culture
+          Russian Criminal Culture
         </h1>
         <p className="max-w-xl text-sm sm:text-lg md:text-xl text-[#f5e8c7] leading-relaxed">
-          Exploring the history, legends, and traditions of the criminal subculture in Russian
-          prisons.
+          Exploring the history, legends, and traditions of Russia&apos;s criminal world — from
+          prison tattoos to thieves-in-law.
         </p>
 
         {/* Search Form */}

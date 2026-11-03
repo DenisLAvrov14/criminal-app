@@ -32,7 +32,7 @@ export default async function LegendsPage({ searchParams }: LegendsPageProps) {
 
   // 4. Рендерим
   return (
-    <section className="bg-black text-[#f5e8c7] py-16 px-6">
+    <section>
       <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Legends' }]} />
 
       <div className="container mx-auto">
@@ -41,7 +41,7 @@ export default async function LegendsPage({ searchParams }: LegendsPageProps) {
         </h1>
         <p className="text-lg mb-12 max-w-2xl text-[#ddd]">
           Dive into curated stories on <span className="font-semibold text-[#c9ad77]">Legends</span>{' '}
-          of Russian prison culture.
+          of Russian criminal culture.
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">

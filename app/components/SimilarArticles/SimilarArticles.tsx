@@ -19,7 +19,7 @@ export const SimilarArticles = async ({ slug, section }: Props) => {
   if (slice.length === 0) return null;
 
   return (
-    <section className="mt-20">
+    <section className="border-t border-[#3a2a1a] pt-12">
       <h2 className="text-2xl font-bold mb-6">You might also like</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {slice.map(a => (

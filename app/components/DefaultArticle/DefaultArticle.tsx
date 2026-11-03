@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import DOMPurify from 'isomorphic-dompurify';
@@ -17,31 +17,47 @@ export interface DefaultArticleProps {
   images: File[];
 }
 
+// Колонка для чтения: 768px, картинки в ней не шире
+const READING_SIZES = '(min-width: 816px) 768px, calc(100vw - 48px)';
+
 export default function DefaultArticle({ title, contentHtml, images }: DefaultArticleProps) {
   const safeHtml = DOMPurify.sanitize(contentHtml);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
 
+  useEffect(() => {
+    if (!selectedImage) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setSelectedImage(null);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [selectedImage]);
+
   return (
-    <article className="container mx-auto space-y-8 text-[#c9ad77]">
-      <h1 className="text-4xl font-bold">{title}</h1>
+    <article className="space-y-8">
+      <h1 className="text-3xl font-bold leading-tight text-[#c9ad77] sm:text-4xl lg:text-5xl">
+        {title}
+      </h1>
 
       {images.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="space-y-6">
           {images.map(img => (
-            <figure
-              key={img.id}
-              className="relative w-full cursor-zoom-in"
-              style={{ paddingTop: '75%' }}
-              onClick={() => setSelectedImage(img)}
-            >
-              <Image
-                src={img.url}
-                alt={img.alt_text || title}
-                fill
-                className="object-contain rounded-lg shadow"
-              />
+            <figure key={img.id}>
+              <button
+                type="button"
+                className="block w-full cursor-zoom-in overflow-hidden rounded-lg"
+                onClick={() => setSelectedImage(img)}
+                aria-label={`Enlarge image: ${img.alt_text || title}`}
+              >
+                <Image
+                  src={img.url}
+                  alt={img.alt_text || title}
+                  width={img.width ?? 1200}
+                  height={img.height ?? 800}
+                  sizes={READING_SIZES}
+                  className="h-auto w-full"
+                />
+              </button>
               {img.description && (
-                <figcaption className="mt-2 text-sm text-gray-500">{img.description}</figcaption>
+                <figcaption className="mt-2 text-sm text-[#9b8f78]">{img.description}</figcaption>
               )}
             </figure>
           ))}
@@ -50,12 +66,12 @@ export default function DefaultArticle({ title, contentHtml, images }: DefaultAr
 
       {/* Основной контент */}
       <div
-        className="prose prose-lg prose-invert max-w-none text-[#c9ad77]"
+        className="prose prose-lg prose-invert prose-site max-w-none"
         dangerouslySetInnerHTML={{ __html: safeHtml }}
       />
 
       {/* Намёк на донат */}
-      <p className="italic text-gray-400 text-sm mt-4">
+      <p className="border-t border-[#3a2a1a] pt-6 text-sm italic text-gray-400">
         Enjoying the article?{' '}
         <Link href="/#donate" className="text-[#c9ad77] hover:underline">
           You can support us with a small donation
@@ -66,25 +82,26 @@ export default function DefaultArticle({ title, contentHtml, images }: DefaultAr
       {/* Лайтбокс */}
       {selectedImage && (
         <div
-          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
           onClick={() => setSelectedImage(null)}
+          role="dialog"
+          aria-modal="true"
         >
-          <div
-            className="relative w-11/12 sm:w-4/5 md:w-3/5 lg:w-1/2 max-w-[900px] max-h-[80vh]"
-            onClick={e => e.stopPropagation()}
-          >
+          <div className="relative max-h-full max-w-6xl" onClick={e => e.stopPropagation()}>
             <Image
               src={selectedImage.url}
               alt={selectedImage.alt_text || title}
-              width={1200}
-              height={800}
-              className="object-contain w-full h-full max-h-[80vh] rounded-lg"
+              width={selectedImage.width ?? 1600}
+              height={selectedImage.height ?? 1000}
+              sizes="100vw"
+              className="max-h-[90vh] w-auto rounded-lg object-contain"
             />
             <button
               onClick={() => setSelectedImage(null)}
-              className="absolute top-3 right-3 text-white bg-black/60 rounded-full p-2 hover:bg-black/80 transition"
+              className="absolute right-3 top-3 rounded-full bg-black/60 p-2 text-white transition hover:bg-black/80"
+              aria-label="Close"
             >
-              <X className="w-6 h-6" />
+              <X className="h-6 w-6" />
             </button>
           </div>
         </div>

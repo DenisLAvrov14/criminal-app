@@ -8,10 +8,12 @@ import { Dialog, Transition } from '@headlessui/react';
 import { XMarkIcon, Bars3Icon } from '@heroicons/react/24/outline';
 
 const NAV_LINKS = [
-  { href: '/history', label: 'History' },
   { href: '/tattoos', label: 'Tattoos' },
+  { href: '/history', label: 'History' },
+  { href: '/traditions', label: 'Traditions' },
   { href: '/hierarchy', label: 'Hierarchy' },
   { href: '/locations', label: 'Locations' },
+  { href: '/legends', label: 'Legends' },
   { href: '/music', label: 'Music' },
 ];
 
@@ -111,14 +113,14 @@ export function Header() {
             aria-hidden="true"
           />
           <span className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold uppercase text-[#f5e8c7] whitespace-nowrap">
-            Russian Prison Culture
+            Russian Criminal Culture
           </span>
         </Link>
 
         {/* Desktop menu */}
         <nav className="hidden lg:flex lg:space-x-4 xl:space-x-6">
           {NAV_LINKS.map(({ href, label }) => {
-            const active = path === href;
+            const active = path === href || path.startsWith(`${href}/`);
             return (
               <Link
                 key={href}

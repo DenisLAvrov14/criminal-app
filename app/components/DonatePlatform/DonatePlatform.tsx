@@ -1,9 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Globe } from 'lucide-react';
-import { SiBitcoin, SiEthereum, SiTether, SiPaypal } from 'react-icons/si';
-import { motion } from 'framer-motion';
+import { Check, Copy } from 'lucide-react';
+import { SiBitcoin, SiEthereum, SiTether } from 'react-icons/si';
 
 interface DonatePlatform {
   name: string;
@@ -30,73 +29,52 @@ const CRYPTO_PLATFORMS: DonatePlatform[] = [
 ];
 
 export const DonationSection = () => {
-  const [showCrypto, setShowCrypto] = useState(false);
+  const [copied, setCopied] = useState<string | null>(null);
+
+  const copyAddress = async ({ name, address }: DonatePlatform) => {
+    try {
+      await navigator.clipboard.writeText(address);
+      setCopied(name);
+      setTimeout(() => setCopied(current => (current === name ? null : current)), 2000);
+    } catch {
+      // буфер обмена недоступен — адрес всё равно виден и выделяется вручную
+    }
+    window.gtag?.('event', 'donate_click', { method: name });
+  };
 
   return (
     <div>
       <h2 className="text-4xl font-bold text-[#c9ad77] mb-6">Support the Project</h2>
       <p className="mb-8 text-lg leading-relaxed">
-        Fuel our research and help us unveil more untold stories from Russia’s prison world. Choose
-        your way to contribute:
+        Fuel our research and help us unveil more untold stories from Russia’s criminal world. Tap
+        an address to copy it:
       </p>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* PayPal Button */}
-        <motion.a
-          href="https://paypal.me/vzakone?country.x=RU&locale.x=ru_RU"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-center gap-3 px-8 py-4 bg-[#1a1a1a] text-[#c9ad77] font-semibold rounded-2xl shadow-md hover:shadow-xl transition-shadow"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => window.gtag?.('event', 'donate_click', { method: 'PayPal' })}
-        >
-          <SiPaypal size={20} />
-          <span>Donate via PayPal</span>
-        </motion.a>
-
-        {/* Crypto Dropdown */}
-        <div className="relative">
-          <motion.button
-            type="button"
-            className="flex items-center justify-center gap-3 w-full px-8 py-4 bg-[#1a1a1a] text-[#c9ad77] font-semibold rounded-2xl shadow-md hover:shadow-xl transition-shadow"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setShowCrypto(prev => !prev)}
-          >
-            <Globe size={20} />
-            <span>Donate via Crypto</span>
-          </motion.button>
-
-          {showCrypto && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mt-2 space-y-3 bg-[#1a1a1a] p-4 rounded-2xl shadow-lg absolute left-0 w-full z-10"
+      <ul className="space-y-3">
+        {CRYPTO_PLATFORMS.map(platform => (
+          <li key={platform.name}>
+            <button
+              type="button"
+              onClick={() => copyAddress(platform)}
+              className="flex w-full items-center gap-3 rounded-2xl bg-[#1a1a1a] px-4 py-3 text-left text-[#c9ad77] shadow-md transition hover:bg-[#222] hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c9ad77]"
             >
-              {CRYPTO_PLATFORMS.map(({ name, address, icon }) => (
-                <motion.button
-                  key={name}
-                  type="button"
-                  className="flex items-center justify-between w-full px-4 py-3 bg-[#121212] text-[#c9ad77] font-medium rounded-lg hover:bg-[#1a1a1a] transition-colors"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => {
-                    navigator.clipboard.writeText(address);
-                    window.gtag?.('event', 'donate_click', { method: name });
-                    alert(`${name} address copied to clipboard!`);
-                  }}
-                >
-                  <div className="flex items-center gap-2">
-                    {icon}
-                    <span>{name}</span>
-                  </div>
-                  <code className="text-sm ml-2 break-all">{address}</code>
-                </motion.button>
-              ))}
-            </motion.div>
-          )}
-        </div>
-      </div>
+              <span className="shrink-0">{platform.icon}</span>
+              <span className="min-w-0 flex-1">
+                <span className="block font-semibold">{platform.name}</span>
+                <code className="block break-all text-xs text-[#f5e8c7]/80 sm:text-sm">
+                  {platform.address}
+                </code>
+              </span>
+              <span className="shrink-0" aria-live="polite">
+                {copied === platform.name ? (
+                  <Check size={18} aria-label="Copied" />
+                ) : (
+                  <Copy size={18} aria-label="Copy address" />
+                )}
+              </span>
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };

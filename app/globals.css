@@ -1,26 +1,42 @@
 @import 'tailwindcss';
+@plugin '@tailwindcss/typography';
 
+/* Сайт всегда тёмный — цвета бренда */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #000000;
+  --foreground: #f5e8c7;
+  --gold: #c9ad77;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: var(--font-inter);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Текст статей из CMS: цвета бренда поверх prose-invert */
+@utility prose-site {
+  --tw-prose-invert-body: #e8dcc0;
+  --tw-prose-invert-headings: var(--gold);
+  --tw-prose-invert-lead: #e8dcc0;
+  --tw-prose-invert-links: var(--gold);
+  --tw-prose-invert-bold: #f5e8c7;
+  --tw-prose-invert-counters: var(--gold);
+  --tw-prose-invert-bullets: var(--gold);
+  --tw-prose-invert-hr: #3a2a1a;
+  --tw-prose-invert-quotes: #f5e8c7;
+  --tw-prose-invert-quote-borders: var(--gold);
+  --tw-prose-invert-captions: #9b8f78;
+  --tw-prose-invert-th-borders: #3a2a1a;
+  --tw-prose-invert-td-borders: #2a1d12;
+
+  & img {
+    border-radius: 0.5rem;
+    margin-inline: auto;
+  }
 }

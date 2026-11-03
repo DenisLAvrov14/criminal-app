@@ -4,8 +4,8 @@ import React from 'react';
 import { CloseButton } from '@/app/ui/CloseButton/CloseButton';
 
 export const metadata = {
-  title: 'Terms of Service — Russian Prison Culture',
-  description: 'Terms of Service for Russian Prison Culture',
+  title: 'Terms of Service — Russian Criminal Culture',
+  description: 'Terms of Service for Russian Criminal Culture',
 };
 
 export default function TermsPage() {
@@ -19,7 +19,7 @@ export default function TermsPage() {
         <section className="space-y-2">
           <h2 className="text-2xl font-semibold">1. Acceptance of Terms</h2>
           <p>
-            By accessing or using the Russian Prison Culture website (&quot;Site&quot;), you agree
+            By accessing or using the Russian Criminal Culture website (&quot;Site&quot;), you agree
             to be bound by these Terms of Service and all applicable laws and regulations. If you do
             not agree, please do not use the Site.
           </p>
@@ -30,7 +30,7 @@ export default function TermsPage() {
           <h2 className="text-2xl font-semibold">2. Intellectual Property</h2>
           <p>
             All content on the Site, including text, graphics, logos, images, and software, is the
-            property of Russian Prison Culture or its licensors and is protected by copyright and
+            property of Russian Criminal Culture or its licensors and is protected by copyright and
             other intellectual property laws. You may view and download materials for personal,
             non-commercial use only.
           </p>

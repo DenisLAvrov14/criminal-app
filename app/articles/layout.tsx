@@ -7,7 +7,7 @@ import { Footer } from '@/app/components/Footer/Footer';
 import BackButton from '../ui/BackButton.tsx/BackButton';
 
 export const metadata: Metadata = {
-  title: 'All Articles — Russian Prison Culture',
+  title: 'All Articles — Russian Criminal Culture',
   description: 'Полный список статей по всем направлениям русской тюремной культуры',
 };
 
@@ -16,7 +16,7 @@ export default function ArticlesLayout({ children }: { children: ReactNode }) {
     <div className="min-h-screen bg-black text-[#f5e8c7] font-serif">
       <Header />
 
-      <main className="page-wrapper container mx-auto px-6 py-16">
+      <main className="container mx-auto px-4 pt-28 pb-16 sm:px-6">
         {/* Основной контент страницы */}
         {children}
         {/* Навигация сверху */}

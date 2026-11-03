@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: SectionProps): Promise<Metada
       title: article.meta_title || article.title,
       description: article.meta_description || article.excerpt || '',
       url: pageUrl,
-      siteName: 'Russian Prison Culture',
+      siteName: 'Russian Criminal Culture',
       images: image ? [image] : [],
     },
     twitter: {
@@ -67,8 +67,8 @@ export default async function SectionSlugPage({ params }: SectionProps) {
 
   // canonical задаётся в generateMetadata
   return (
-    <>
-      <div className="page-wrapper container mx-auto px-6 py-12 space-y-8">
+    <div className="space-y-16">
+      <div className="mx-auto max-w-3xl space-y-8">
         <Breadcrumbs
           items={[
             { label: 'Home', href: '/' },
@@ -90,14 +90,12 @@ export default async function SectionSlugPage({ params }: SectionProps) {
           cover={article.cover}
         />
 
-        {/* вот здесь заменили record на article */}
-        <SimilarArticles
-          slug={article.slug}
-          section={article.section!} // если у тебя section всё ещё optional в типе — можно добавить "!"
-        />
-
         <BackButton />
       </div>
-    </>
+
+      <div className="mx-auto max-w-6xl">
+        <SimilarArticles slug={article.slug} section={article.section!} />
+      </div>
+    </div>
   );
 }

@@ -34,7 +34,7 @@ export async function generateMetadata({
       title,
       description: `Dive into…`,
       url: pageUrl,
-      siteName: 'Russian Prison Culture',
+      siteName: 'Russian Criminal Culture',
     },
   };
 }
@@ -74,7 +74,7 @@ export default async function SectionPage({ params, searchParams }: SectionPageP
   // canonical задаётся в generateMetadata
   return (
     <>
-      <div className="page-wrapper bg-black text-[#f5e8c7] py-16 px-6">
+      <div>
         <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: title }]} />
 
         <div className="container mx-auto">
@@ -88,7 +88,7 @@ export default async function SectionPage({ params, searchParams }: SectionPageP
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {pageItems.map(article => (
-              <div key={article.id} className="transform hover:scale-105 transition-transform">
+              <div key={article.id}>
                 <ArticleCard
                   img={article.cover?.url || article.images?.[0]?.url || '/images/placeholder.jpg'}
                   alt={article.cover?.alt_text || article.images?.[0]?.alt_text || article.title}

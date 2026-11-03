@@ -33,7 +33,7 @@ export default async function MusicPage({ searchParams }: MusicPageProps) {
   const basePath = '/music';
 
   return (
-    <section className="bg-black text-[#f5e8c7] py-16 px-6">
+    <section>
       <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: title }]} />
 
       <div className="container mx-auto">
@@ -45,17 +45,14 @@ export default async function MusicPage({ searchParams }: MusicPageProps) {
         {/* Описание */}
         <p className="text-lg mb-12 max-w-2xl text-[#ddd]">
           Dive into curated articles on{' '}
-          <span className="font-semibold text-[#c9ad77]">{title}</span> in Russian prison culture.
+          <span className="font-semibold text-[#c9ad77]">{title}</span> in Russian criminal culture.
           Explore traditions, art, and the hidden codes behind prison walls.
         </p>
 
         {/* Сетка статей */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {pageItems.map(article => (
-            <div
-              key={article.id}
-              className="transform hover:scale-105 transition-transform duration-300"
-            >
+            <div key={article.id}>
               <ArticleCard
                 cover={article.cover?.url || '/images/placeholder.jpg'}
                 alt={article.cover?.alt_text || article.title}

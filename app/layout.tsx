@@ -10,8 +10,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Russian Prison Culture',
-  description: 'Russian Prison Tattos and Criminal Subculture',
+  title: 'Russian Criminal Culture',
+  description:
+    'Russian criminal culture: prison tattoos, thieves-in-law, hierarchy, slang and history',
   verification: {
     google: 'FaILXNl1lAQjTjE6Xp63OYZamuQcpRlrvY3FSaFtna4',
   },

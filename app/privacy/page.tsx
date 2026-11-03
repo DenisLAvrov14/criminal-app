@@ -4,8 +4,8 @@ import React from 'react';
 import { CloseButton } from '@/app/ui/CloseButton/CloseButton';
 
 export const metadata = {
-  title: 'Privacy Policy — Russian Prison Culture',
-  description: 'Privacy Policy of Russian Prison Culture',
+  title: 'Privacy Policy — Russian Criminal Culture',
+  description: 'Privacy Policy of Russian Criminal Culture',
 };
 
 export default function PrivacyPolicyPage() {

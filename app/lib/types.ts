@@ -10,6 +10,8 @@ export interface DirectusFile {
   description: string | null;
   type: string;
   filesize: number;
+  width?: number | null;
+  height?: number | null;
   alt_text: string | null;
   // остальные поля Directus-а можно тоже добавить, если нужны
 }
@@ -65,6 +67,8 @@ export interface File {
   description?: string;
   type?: string;
   size?: number;
+  width?: number;
+  height?: number;
   alt_text?: string;
 }
 

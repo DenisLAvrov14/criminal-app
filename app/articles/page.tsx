@@ -10,15 +10,15 @@ import { ArticleCard } from '@/app/components/ArticleCard/ArticleCard';
 import Breadcrumbs from '../ui/Breadcrumbs/Breadcrumbs';
 
 export const metadata: Metadata = {
-  title: 'All Articles — Russian Prison Culture',
+  title: 'All Articles — Russian Criminal Culture',
   description:
-    'Full list of articles across all facets of Russian prison culture. Explore our archives for history, traditions, legends, tattoos, hierarchy, locations, music and more.',
+    'Full list of articles across all facets of Russian criminal culture. Explore our archives for history, traditions, legends, tattoos, hierarchy, locations, music and more.',
   alternates: { canonical: `${process.env.SITE_URL || 'http://localhost:3000'}/articles` },
   openGraph: {
     title: 'All Articles',
-    description: 'Full list of articles across all facets of Russian prison culture.',
+    description: 'Full list of articles across all facets of Russian criminal culture.',
     url: `${process.env.SITE_URL}/articles`,
-    siteName: 'Russian Prison Culture',
+    siteName: 'Russian Criminal Culture',
   },
 };
 
@@ -51,7 +51,7 @@ export default async function ArticlesPage() {
         }}
       />
 
-      <div className="page-wrapper bg-black text-[#f5e8c7] py-16 px-6">
+      <div>
         {/* Хлебные крошки */}
         <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Articles' }]} />
 
@@ -62,17 +62,15 @@ export default async function ArticlesPage() {
           </h1>
           {/* Subtitle */}
           <p className="text-lg text-[#ddd] mb-12">
-            Full list of articles across all facets of Russian prison culture. Explore our archives
-            for history, traditions, legends, tattoos, hierarchy, locations, music and more.
+            Full list of articles across all facets of Russian criminal culture. Explore our
+            archives for history, traditions, legends, tattoos, hierarchy, locations, music and
+            more.
           </p>
 
           {/* Articles Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {articles.map(article => (
-              <div
-                key={article.id}
-                className="transform hover:scale-105 transition-transform duration-300"
-              >
+              <div key={article.id}>
                 <ArticleCard
                   img={article.cover?.url || article.images[0]?.url || '/images/placeholder-1.jpg'}
                   alt={article.cover?.alt_text || article.images[0]?.alt_text || article.title}

@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import DOMPurify from 'isomorphic-dompurify';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { formatDate } from '@/app/lib/format';
 
 export interface LegendArticleProps {
   title: string;
@@ -36,155 +37,117 @@ export default function LegendArticle({
   status,
 }: LegendArticleProps) {
   const safeHtml = DOMPurify.sanitize(contentHtml);
-  const coverUrl = imageUrls[0];
-  const galleryUrls = imageUrls.slice(1);
+  const allImages = imageUrls.filter(Boolean);
+  const coverUrl = allImages[0];
+  const galleryUrls = allImages.slice(1);
+
+  const facts: [string, string | undefined][] = [
+    ['Full name', fio],
+    ['Nickname', nickname],
+    ['Born', birthdate && formatDate(birthdate)],
+    ['Died', deathdate && formatDate(deathdate)],
+    ['Place of birth', birthplace],
+    ['Residence', residence],
+    ['Nationality', nationality],
+    ['Status', status],
+  ];
 
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const allImages = [coverUrl, ...galleryUrls].filter(Boolean);
 
+  const count = allImages.length;
   const closeModal = () => setSelectedIndex(null);
-  const prevImage = () =>
-    setSelectedIndex(prev =>
-      prev !== null ? (prev - 1 + allImages.length) % allImages.length : prev
-    );
-  const nextImage = () =>
-    setSelectedIndex(prev => (prev !== null ? (prev + 1) % allImages.length : prev));
+  const step = (delta: number) =>
+    setSelectedIndex(prev => (prev !== null ? (prev + delta + count) % count : prev));
+  const prevImage = () => step(-1);
+  const nextImage = () => step(1);
 
+  const isOpen = selectedIndex !== null;
   useEffect(() => {
+    if (!isOpen) return;
     const handleKey = (e: KeyboardEvent) => {
-      if (selectedIndex === null) return;
-      if (e.key === 'Escape') closeModal();
-      if (e.key === 'ArrowLeft') prevImage();
-      if (e.key === 'ArrowRight') nextImage();
+      if (e.key === 'Escape') setSelectedIndex(null);
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        const delta = e.key === 'ArrowLeft' ? -1 : 1;
+        setSelectedIndex(prev => (prev !== null ? (prev + delta + count) % count : prev));
+      }
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [selectedIndex]);
+  }, [isOpen, count]);
 
   return (
-    <article className="container mx-auto space-y-12">
-      <h1 className="text-3xl font-bold">{title}</h1>
+    <article className="space-y-10">
+      <h1 className="text-3xl font-bold leading-tight text-[#c9ad77] sm:text-4xl lg:text-5xl">
+        {title}
+      </h1>
 
-      {/* Грид: обложка + инфоблок */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {/* A) Большая картинка */}
-        <div className="order-2 md:order-1 md:col-span-2">
-          {coverUrl && (
-            <div
-              className="relative w-full h-96 cursor-zoom-in"
-              onClick={() => setSelectedIndex(0)}
-            >
-              <Image
-                src={coverUrl}
-                alt={title || 'Legend cover'}
-                fill
-                className="object-contain rounded-lg shadow-lg bg-black"
-                priority
-              />
-            </div>
-          )}
-        </div>
-
-        {/* B) Инфоблок */}
-        <div className="order-1 md:order-2 space-y-6 text-[#ddd] flex flex-col items-center md:items-end md:text-right">
-          {coverUrl && (
+      {/* Фото + карточка с фактами */}
+      <div className="flex flex-col gap-6 rounded-lg border border-[#3a2a1a] bg-[#120c07] p-4 sm:flex-row sm:p-6">
+        {coverUrl && (
+          <button
+            type="button"
+            className="mx-auto w-48 shrink-0 cursor-zoom-in overflow-hidden rounded-md sm:mx-0 sm:w-56"
+            onClick={() => setSelectedIndex(0)}
+            aria-label={`Enlarge photo: ${title}`}
+          >
             <Image
               src={coverUrl}
-              alt={title || 'Legend thumbnail'}
-              width={200}
-              height={200}
-              className="rounded-lg shadow-lg mb-4 object-contain bg-black"
+              alt={fio || title}
+              width={448}
+              height={640}
+              sizes="224px"
+              className="h-auto w-full object-cover"
               priority
             />
-          )}
-          <dl className="grid grid-cols-1 gap-y-2">
-            {fio && (
-              <div>
-                <dt className="font-semibold">Full Name:</dt>
-                <dd>{fio}</dd>
+          </button>
+        )}
+
+        <dl className="grid flex-1 grid-cols-1 content-start gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
+          {facts
+            .filter(([, value]) => value)
+            .map(([label, value]) => (
+              <div key={label}>
+                <dt className="text-xs uppercase tracking-wide text-[#9b8f78]">{label}</dt>
+                <dd className="text-base text-[#f5e8c7]">{value}</dd>
               </div>
-            )}
-            {nickname && (
-              <div>
-                <dt className="font-semibold">Nickname:</dt>
-                <dd>{nickname}</dd>
-              </div>
-            )}
-            {birthdate && (
-              <div>
-                <dt className="font-semibold">Date of Birth:</dt>
-                <dd>{new Date(birthdate).toLocaleDateString()}</dd>
-              </div>
-            )}
-            {deathdate && (
-              <div>
-                <dt className="font-semibold">Date of Death:</dt>
-                <dd>{new Date(deathdate).toLocaleDateString()}</dd>
-              </div>
-            )}
-            {birthplace && (
-              <div>
-                <dt className="font-semibold">Place of Birth:</dt>
-                <dd>{birthplace}</dd>
-              </div>
-            )}
-            {residence && (
-              <div>
-                <dt className="font-semibold">Residence:</dt>
-                <dd>{residence}</dd>
-              </div>
-            )}
-            {nationality && (
-              <div>
-                <dt className="font-semibold">Nationality:</dt>
-                <dd>{nationality}</dd>
-              </div>
-            )}
-            {status && (
-              <div>
-                <dt className="font-semibold">Status:</dt>
-                <dd>{status}</dd>
-              </div>
-            )}
-          </dl>
-        </div>
+            ))}
+        </dl>
       </div>
+
+      {/* Краткое описание */}
+      {excerpt && <p className="text-xl leading-relaxed text-[#e8dcc0]">{excerpt}</p>}
+
+      {/* Полный контент */}
+      <div
+        className="prose prose-lg prose-invert prose-site max-w-none"
+        dangerouslySetInnerHTML={{ __html: safeHtml }}
+      />
 
       {/* Галерея */}
       {galleryUrls.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
           {galleryUrls.map((url, idx) => (
-            <div
-              key={idx}
-              className="relative w-full h-72 cursor-zoom-in"
+            <button
+              type="button"
+              key={url}
+              className="relative aspect-square cursor-zoom-in overflow-hidden rounded-lg bg-black"
               onClick={() => setSelectedIndex(idx + 1)}
+              aria-label={`Enlarge image ${idx + 2}`}
             >
               <Image
                 src={url}
-                alt={`${title || 'Legend'} image ${idx + 2}`}
+                alt={`${title} image ${idx + 2}`}
                 fill
-                className="object-contain rounded-lg shadow bg-black"
+                sizes="(min-width: 640px) 256px, 50vw"
+                className="object-cover"
               />
-            </div>
+            </button>
           ))}
         </div>
       )}
 
-      {/* Краткое описание */}
-      {excerpt && (
-        <div className="prose prose-lg prose-invert max-w-none">
-          <p>{excerpt}</p>
-        </div>
-      )}
-
-      {/* Полный контент */}
-      <div
-        className="prose prose-lg prose-invert max-w-none"
-        dangerouslySetInnerHTML={{ __html: safeHtml }}
-      />
-
       {/* Намёк на донат */}
-      <p className="italic text-gray-400 text-sm mt-4">
+      <p className="border-t border-[#3a2a1a] pt-6 text-sm italic text-gray-400">
         Enjoying the article?{' '}
         <Link href="/#donate" className="text-[#c9ad77] hover:underline">
           You can support us with a small donation
@@ -195,44 +158,50 @@ export default function LegendArticle({
       {/* Лайтбокс */}
       {selectedIndex !== null && allImages[selectedIndex] && (
         <div
-          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
           onClick={closeModal}
+          role="dialog"
+          aria-modal="true"
         >
           <div
-            className="relative w-11/12 sm:w-4/5 md:w-3/5 lg:w-1/2 max-w-[900px] max-h-[80vh] flex items-center justify-center"
+            className="relative flex max-h-full max-w-5xl items-center justify-center"
             onClick={e => e.stopPropagation()}
           >
             <Image
               src={allImages[selectedIndex]!}
-              alt="Zoomed image"
+              alt={`${title} — image ${selectedIndex + 1}`}
               width={1200}
-              height={800}
-              className="object-contain w-full h-full max-h-[80vh] rounded-lg"
+              height={1600}
+              sizes="100vw"
+              className="max-h-[90vh] w-auto rounded-lg object-contain"
             />
 
-            {/* Закрыть */}
             <button
               onClick={closeModal}
-              className="absolute top-3 right-3 text-white bg-black/60 rounded-full p-2 hover:bg-black/80 transition"
+              className="absolute right-3 top-3 rounded-full bg-black/60 p-2 text-white transition hover:bg-black/80"
+              aria-label="Close"
             >
-              <X className="w-6 h-6" />
+              <X className="h-6 w-6" />
             </button>
 
-            {/* Влево */}
-            <button
-              onClick={prevImage}
-              className="absolute left-3 text-white bg-black/60 rounded-full p-2 hover:bg-black/80 transition"
-            >
-              <ChevronLeft className="w-6 h-6" />
-            </button>
-
-            {/* Вправо */}
-            <button
-              onClick={nextImage}
-              className="absolute right-12 text-white bg-black/60 rounded-full p-2 hover:bg-black/80 transition"
-            >
-              <ChevronRight className="w-6 h-6" />
-            </button>
+            {allImages.length > 1 && (
+              <>
+                <button
+                  onClick={prevImage}
+                  className="absolute left-3 rounded-full bg-black/60 p-2 text-white transition hover:bg-black/80"
+                  aria-label="Previous image"
+                >
+                  <ChevronLeft className="h-6 w-6" />
+                </button>
+                <button
+                  onClick={nextImage}
+                  className="absolute right-3 rounded-full bg-black/60 p-2 text-white transition hover:bg-black/80"
+                  aria-label="Next image"
+                >
+                  <ChevronRight className="h-6 w-6" />
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}

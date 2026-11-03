@@ -25,7 +25,7 @@ export const Footer: React.FC = () => {
         <FooterSubscribe />
 
         {/* 1. © */}
-        <div className="text-xs md:text-sm">&copy; {year} Russian Prison Culture</div>
+        <div className="text-xs md:text-sm">&copy; {year} Russian Criminal Culture</div>
 
         {/* 2. Правовые ссылки */}
         <nav className="flex justify-center space-x-4 text-xs md:text-sm">

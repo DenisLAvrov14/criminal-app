@@ -76,6 +76,8 @@ export function transformArticle(item: DirectusArticle): Article {
       description: f.description ?? undefined,
       type: f.type,
       size: f.filesize,
+      width: f.width ?? undefined,
+      height: f.height ?? undefined,
       alt_text: f.alt_text ?? undefined,
     }));
 
@@ -92,6 +94,8 @@ export function transformArticle(item: DirectusArticle): Article {
         description: f.description ?? undefined,
         type: f.type,
         size: f.filesize,
+        width: f.width ?? undefined,
+        height: f.height ?? undefined,
         alt_text: f.alt_text ?? undefined,
       };
     } else if ('id' in coverField) {
@@ -103,6 +107,8 @@ export function transformArticle(item: DirectusArticle): Article {
         description: f.description ?? undefined,
         type: f.type,
         size: f.filesize,
+        width: f.width ?? undefined,
+        height: f.height ?? undefined,
         alt_text: f.alt_text ?? undefined,
       };
     }

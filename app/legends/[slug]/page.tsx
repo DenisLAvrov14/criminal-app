@@ -108,7 +108,7 @@ export async function generateMetadata({
       title: record.title,
       description: record.excerpt,
       url: pageUrl,
-      siteName: 'Russian Prison Culture',
+      siteName: 'Russian Criminal Culture',
       images: ogImage ? [ogImage] : [],
     },
     twitter: {
@@ -133,7 +133,7 @@ export default async function LegendDetailPage({ params }: Props) {
   const imageUrls = imageIds.map(id => `${DIRECTUS_URL.replace(/\/$/, '')}/assets/${id}`);
 
   return (
-    <div className="page-wrapper container mx-auto px-6 py-12">
+    <div className="mx-auto max-w-3xl space-y-8">
       <Breadcrumbs
         items={[
           { label: 'Home', href: '/' },
